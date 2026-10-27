@@ -601,9 +601,10 @@
 <div id="toast-container"></div>
 
 <script>
-  // --- KONSTANTY A VERZE APLIKACE (Single Source of Truth) ---
+  // --- KONSTANTY ---
   const APP_VERSION = '2.3';
   const APP_ID = `PKI-Lab-v${APP_VERSION}`;
+  const DB_SCHEMA_VERSION = '3';
 
   function updateAppVersionBadge() {
     const badge = document.getElementById('app-version-badge');
@@ -1596,13 +1597,13 @@
   function initStorage() {
     updateAppVersionBadge();
     initLanguage();
-    const saved = localStorage.getItem('pki_store_v2');
+    const saved = localStorage.getItem('pki_store_v' + DB_SCHEMA_VERSION);
     const toggle = document.getElementById('toggle-ls');
     const alertBox = document.getElementById('ls-alert');
 
     if (saved) {
       try {
-        const data = JSON.parse(saved);
+        const data = JSON.parse(saved); 
         idCounter = data.idCounter || 1;
         store = data.store.map(reconstructItem);
         toggle.checked = true;
@@ -1624,9 +1625,9 @@
 
   function syncStore() {
     if (document.getElementById('toggle-ls').checked) {
-      localStorage.setItem('pki_store_v2', JSON.stringify({ idCounter, store: serializeStore() }));
+      localStorage.setItem('pki_store_v' + DB_SCHEMA_VERSION, JSON.stringify({ idCounter, store: serializeStore() }));
     } else {
-      localStorage.removeItem('pki_store_v2');
+      localStorage.removeItem('pki_store_v' + DB_SCHEMA_VERSION);
     }
   }
 
