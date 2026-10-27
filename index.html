@@ -74,7 +74,7 @@
 
     /* Alerts */
     .alert-box { background: rgba(69, 10, 10, 0.4); border: 1px solid #991b1b; padding: 16px; border-radius: 8px; margin-bottom: 25px; font-size: 13.5px; line-height: 1.6; color: #fca5a5; display: flex; gap: 12px; align-items: flex-start; }
-    .alert-box span { font-size: 18px; }
+    .alert-box span { font-size: 13px; }
     
     /* Buttons */
     .btn { background: var(--accent); color: #fff; border: none; padding: 14px 24px; font-family: var(--font); font-weight: bold; border-radius: 6px; cursor: pointer; transition: all 0.2s; width: 100%; font-size: 15px; letter-spacing: 0.5px; }
@@ -223,7 +223,7 @@
         <span>⚠️</span>
         <div>
           <strong data-i18n="keyring_alert_strong">Lokální ukládání je aktivní</strong><br>
-          <span data-i18n="keyring_alert_desc">Privátní klíče se ukládají přímo do paměti tohoto prohlížeče. Pro bezpečný přenos na jiné zařízení využijte <em>Šifrovaný export zálohy</em>.</span>
+          <span data-i18n="keyring_alert_desc">Privátní klíče se ukládají v plaintextu do paměti tohoto prohlížeče. Pro bezpečný přenos na jiné zařízení využijte <em>Šifrovaný export zálohy</em>.</span>
         </div>
       </div>
 
@@ -264,22 +264,22 @@
           <input type="text" id="r-cn" value="Moje Globalni Root CA">
           <span class="help-text" data-i18n="root_cn_help">Hlavní název autority, který se zobrazí v prohlížeči uživatele.</span>
         </div>
-        <div><label data-i18n="field_org">Organizace (O)</label><input type="text" id="r-o" value="CyberCorp Ltd."></div>
+        <div><label data-i18n="field_org">Organizace (O)</label><input type="text" id="r-o"></div>
         <div>
           <label data-i18n="field_ou">Org. jednotka (OU)</label>
-          <input type="text" id="r-ou" value="" placeholder="nepoužívá se" data-i18n-placeholder="placeholder_not_used">
+          <input type="text" id="r-ou" value="" placeholder="not used" data-i18n-placeholder="placeholder_not_used">
         </div>
-        <div><label data-i18n="field_country">Země (C)</label><input type="text" id="r-c" value="CZ"></div>
-        <div><label data-i18n="field_city">Město (L)</label><input type="text" id="r-l" value="Praha"></div>
+        <div><label data-i18n="field_country">Země (C)</label><input type="text" id="r-c"></div>
+        <div><label data-i18n="field_city">Město (L)</label><input type="text" id="r-l"></div>
         <div>
           <label data-i18n="field_algo">Algoritmus klíče</label>
           <select id="r-algo">
-            <option value="RSA-2048" data-i18n="algo_rsa_2048">RSA 2048 (Rychlé, historický standard)</option>
-            <option value="RSA-3072" data-i18n="algo_rsa_3072">RSA 3072 (Moderní bezpečný standard)</option>
-            <option value="RSA-4096" selected data-i18n="algo_rsa_4096">RSA 4096 (Vysoká bezpečnost)</option>
-            <option value="ECDSA-P-256" data-i18n="algo_ecdsa_p256">ECDSA P-256 (Moderní, rychlé, standard pro web)</option>
-            <option value="ECDSA-P-384" data-i18n="algo_ecdsa_p384">ECDSA P-384 (Vysoká bezpečnost, NSA Suite B)</option>
-            <option value="ED25519" data-i18n="algo_ed25519">ECC Ed25519 (Extrémně rychlé, moderní)</option>
+            <option value="RSA-2048" data-i18n="algo_rsa_2048">RSA 2048 (Rychlé, vysoká kompatibilita)</option>
+            <option value="RSA-3072" data-i18n="algo_rsa_3072">RSA 3072 (Vyšší bezpečnost)</option>
+            <option value="RSA-4096" selected data-i18n="algo_rsa_4096">RSA 4096 (Maximální bezpečnost)</option>
+            <option value="ECDSA-P-256" data-i18n="algo_ecdsa_p256">ECDSA P-256 (Moderní, rychlé, standard pro TLS)</option>
+            <option value="ECDSA-P-384" data-i18n="algo_ecdsa_p384">ECDSA P-384 (Vysoká bezpečnost)</option>
+            <option value="ED25519" data-i18n="algo_ed25519">ECC Ed25519 (Velmi rychlé, moderní, horší kompatibilita)</option>
           </select>
           <span class="help-text" data-i18n="root_algo_help">Pro novou Root CA se dnes doporučuje RSA 4096, ECDSA P-384 nebo Ed25519.</span>
         </div>
@@ -304,17 +304,17 @@
         </div>
         <div class="full-width">
           <label data-i18n="field_cn">Common Name (CN)</label>
-          <input type="text" id="i-cn" value="CyberCorp Intermediate R1">
+          <input type="text" id="i-cn">
         </div>
         <div>
           <label data-i18n="field_algo">Algoritmus klíče</label>
           <select id="i-algo">
-            <option value="RSA-2048">RSA 2048</option>
-            <option value="RSA-3072" selected>RSA 3072</option>
-            <option value="RSA-4096">RSA 4096</option>
-            <option value="ECDSA-P-256">ECDSA P-256</option>
-            <option value="ECDSA-P-384">ECDSA P-384</option>
-            <option value="ED25519">ECC Ed25519</option>
+            <option value="RSA-2048" data-i18n="algo_rsa_2048">RSA 2048 (Rychlé, vysoká kompatibilita)</option>
+            <option value="RSA-3072" data-i18n="algo_rsa_3072">RSA 3072 (Vyšší bezpečnost)</option>
+            <option value="RSA-4096" selected data-i18n="algo_rsa_4096">RSA 4096 (Maximální bezpečnost)</option>
+            <option value="ECDSA-P-256" data-i18n="algo_ecdsa_p256">ECDSA P-256 (Moderní, rychlé, standard pro TLS)</option>
+            <option value="ECDSA-P-384" data-i18n="algo_ecdsa_p384">ECDSA P-384 (Vysoká bezpečnost)</option>
+            <option value="ED25519" data-i18n="algo_ed25519">ECC Ed25519 (Velmi rychlé, moderní, horší kompatibilita)</option>
           </select>
         </div>
         <div>
@@ -360,12 +360,12 @@
         <div>
           <label data-i18n="field_algo">Algoritmus klíče</label>
           <select id="l-algo">
-            <option value="RSA-2048" selected>RSA 2048</option>
-            <option value="RSA-3072">RSA 3072</option>
-            <option value="RSA-4096">RSA 4096</option>
-            <option value="ECDSA-P-256" data-i18n="algo_p256_common">ECDSA P-256 (Moderní, běžné)</option>
-            <option value="ECDSA-P-384">ECDSA P-384</option>
-            <option value="ED25519">ECC Ed25519</option>
+            <option value="RSA-2048" data-i18n="algo_rsa_2048">RSA 2048 (Rychlé, vysoká kompatibilita)</option>
+            <option value="RSA-3072" data-i18n="algo_rsa_3072">RSA 3072 (Vyšší bezpečnost)</option>
+            <option value="RSA-4096" selected data-i18n="algo_rsa_4096">RSA 4096 (Maximální bezpečnost)</option>
+            <option value="ECDSA-P-256" data-i18n="algo_ecdsa_p256">ECDSA P-256 (Moderní, rychlé, standard pro TLS)</option>
+            <option value="ECDSA-P-384" data-i18n="algo_ecdsa_p384">ECDSA P-384 (Vysoká bezpečnost)</option>
+            <option value="ED25519" data-i18n="algo_ed25519">ECC Ed25519 (Velmi rychlé, moderní, horší kompatibilita)</option>
           </select>
         </div>
         <div>
@@ -387,7 +387,7 @@
       <button class="btn" id="btn-gen-leaf" onclick="generateLeaf()" data-i18n="btn_gen_leaf">Vystavit koncový certifikát</button>
     </div>
 
-    <!-- PANEL: CSR GENERATOR (NOVÁ SEKCE) -->
+    <!-- PANEL: CSR GENERATOR -->
     <div id="panel-csr-gen" class="panel">
       <h3 data-i18n="csr_gen_title">Generátor žádosti o certifikát (CSR)</h3>
       <p class="desc" data-i18n="csr_gen_desc">Vygenerujte nový privátní klíč a odpovídající žádost o podpis (PKCS#10 CSR) pro externí certifikační autoritu nebo pro otestování v sekci Podepsat CSR.</p>
@@ -405,29 +405,29 @@
         </div>
         <div>
           <label data-i18n="field_org">Organizace (O)</label>
-          <input type="text" id="cg-o" value="CyberCorp Ltd." placeholder="Volitelné" data-i18n-placeholder="placeholder_optional">
+          <input type="text" id="cg-o" placeholder="Optional" data-i18n-placeholder="placeholder_optional">
         </div>
         <div>
           <label data-i18n="field_ou">Org. jednotka (OU)</label>
-          <input type="text" id="cg-ou" value="" placeholder="Volitelné (např. IT Dept)" data-i18n-placeholder="placeholder_ou_optional">
+          <input type="text" id="cg-ou" placeholder="not used" data-i18n-placeholder="placeholder_not_used">
         </div>
         <div>
           <label data-i18n="field_country">Země (C)</label>
-          <input type="text" id="cg-c" value="CZ" maxlength="2" placeholder="Dvoupísmenný ISO kód (CZ)" data-i18n-placeholder="placeholder_country">
+          <input type="text" id="cg-c" maxlength="2" placeholder="Two-letter ISO code" data-i18n-placeholder="placeholder_country">
         </div>
         <div>
           <label data-i18n="field_city_loc">Město / Lokalita (L)</label>
-          <input type="text" id="cg-l" value="Praha" placeholder="Volitelné" data-i18n-placeholder="placeholder_optional">
+          <input type="text" id="cg-l" placeholder="optional" data-i18n-placeholder="placeholder_optional">
         </div>
         <div class="full-width">
           <label data-i18n="field_algo">Algoritmus klíče</label>
           <select id="cg-algo">
-            <option value="RSA-2048" selected data-i18n="algo_rsa_2048_compat">RSA 2048 (Univerzální kompatibilita)</option>
-            <option value="RSA-3072" data-i18n="algo_rsa_3072_higher">RSA 3072 (Vyšší bezpečnost)</option>
-            <option value="RSA-4096" data-i18n="algo_rsa_4096_max">RSA 4096 (Maximální RSA bezpečnost)</option>
-            <option value="ECDSA-P-256" data-i18n="algo_p256_tls">ECDSA P-256 (Moderní, rychlé, standard pro TLS)</option>
-            <option value="ECDSA-P-384" data-i18n="algo_p384_high">ECDSA P-384 (Vysoká bezpečnost)</option>
-            <option value="ED25519" data-i18n="algo_ed25519_rfc">ECC Ed25519 (Moderní RFC 8410)</option>
+            <option value="RSA-2048" data-i18n="algo_rsa_2048">RSA 2048 (Rychlé, vysoká kompatibilita)</option>
+            <option value="RSA-3072" data-i18n="algo_rsa_3072">RSA 3072 (Vyšší bezpečnost)</option>
+            <option value="RSA-4096" selected data-i18n="algo_rsa_4096">RSA 4096 (Maximální bezpečnost)</option>
+            <option value="ECDSA-P-256" data-i18n="algo_ecdsa_p256">ECDSA P-256 (Moderní, rychlé, standard pro TLS)</option>
+            <option value="ECDSA-P-384" data-i18n="algo_ecdsa_p384">ECDSA P-384 (Vysoká bezpečnost)</option>
+            <option value="ED25519" data-i18n="algo_ed25519">ECC Ed25519 (Velmi rychlé, moderní, nižší kompatibilita)</option>
           </select>
           <span class="help-text" data-i18n="csr_gen_algo_help">Vybere kryptografický algoritmus, kterým se vygeneruje pár klíčů a následně podepíše samotná CSR žádost.</span>
         </div>
@@ -570,7 +570,7 @@
       <div style="border-top: 1px solid var(--border); margin: 35px 0 25px 0;"></div>
 
       <h4 data-i18n="import_h4_2">2. Šifrovaná záloha celé aplikace (Workspace Backup)</h4>
-      <p class="desc" data-i18n="import_backup_desc">Stáhněte kompletní strom klíčenky do jednoho <code>.json</code> souboru chráněného silným heslem (šifrováno lokálně pomocí AES-256-GCM). Lze následně otevřít na libovolném jiném zařízení.</p>
+      <p class="desc" data-i18n="import_backup_desc">Stáhněte kompletní strom klíčenky do jednoho <code>.json</code> souboru chráněného silným heslem (šifrováno lokálně pomocí AES-256-GCM). Lze následně otevřít na libovolném jiném zařízení. <b>Import ze zálohy nahradí veškerá dosavadní uložená data!</b></p>
       <div class="grid-2">
         <button class="btn btn-secondary" onclick="exportEncryptedWorkspace()" data-i18n="btn_export_ws">🔒 Exportovat zašifrovanou zálohu</button>
         <button class="btn btn-secondary" onclick="document.getElementById('file-ws').click()" data-i18n="btn_restore_ws">🔓 Obnovit stav ze zálohy</button>
@@ -808,7 +808,7 @@
       keyring_title: "Virtuální klíčenka",
       keyring_desc: "Hlavní přehled vygenerovaných a importovaných autorit, certifikátů a klíčů.",
       keyring_alert_strong: "Lokální ukládání je aktivní",
-      keyring_alert_desc: "Privátní klíče se ukládají přímo do paměti tohoto prohlížeče. Pro bezpečný přenos na jiné zařízení využijte <em>Šifrovaný export zálohy</em>.",
+      keyring_alert_desc: "Privátní klíče se ukládají v plaintextu do paměti tohoto prohlížeče. Pro bezpečný přenos na jiné zařízení využijte <em>Šifrovaný export zálohy</em>.",
       keyring_toggle_ls: "💾 Ukládat klíčenku trvale v prohlížeči (LocalStorage)",
       keyring_btn_export: "🔒 Export zálohy (.json)",
       keyring_btn_clear: "🗑️ Smazat vše",
@@ -842,18 +842,17 @@
       field_ou: "Org. jednotka (OU)",
       placeholder_not_used: "nepoužívá se",
       placeholder_optional: "Volitelné",
-      placeholder_ou_optional: "Volitelné (např. IT Dept)",
       field_country: "Země (C)",
       placeholder_country: "Dvoupísmenný ISO kód (CZ)",
       field_city: "Město (L)",
       field_city_loc: "Město / Lokalita (L)",
       field_algo: "Algoritmus klíče",
-      algo_rsa_2048: "RSA 2048 (Rychlé, historický standard)",
-      algo_rsa_3072: "RSA 3072 (Moderní bezpečný standard)",
-      algo_rsa_4096: "RSA 4096 (Vysoká bezpečnost)",
-      algo_ecdsa_p256: "ECDSA P-256 (Moderní, rychlé, standard pro web)",
-      algo_ecdsa_p384: "ECDSA P-384 (Vysoká bezpečnost, NSA Suite B)",
-      algo_ed25519: "ECC Ed25519 (Extrémně rychlé, moderní)",
+      algo_rsa_2048: "RSA 2048 (Rychlé, vysoká kompatibilita)",
+      algo_rsa_3072: "RSA 3072 (Vyšší bezpečnost)",
+      algo_rsa_4096: "RSA 4096 (Maximální bezpečnost)",
+      algo_ecdsa_p256: "ECDSA P-256 (Moderní, rychlé, standard pro TLS)",
+      algo_ecdsa_p384: "ECDSA P-384 (Vysoká bezpečnost)",
+      algo_ed25519: "ECC Ed25519 (Velmi rychlé, moderní, horší kompatibilita)",
       root_algo_help: "Pro novou Root CA se dnes doporučuje RSA 4096, ECDSA P-384 nebo Ed25519.",
       field_validity_years: "Platnost (roky)",
       root_validity_help: "Kořenová autorita se obvykle vystavuje na velmi dlouhou dobu (10-20 let).",
@@ -900,12 +899,6 @@
       field_cn_csr_gen: "Common Name (CN) / Hlavní doména",
       csr_gen_cn_help: "Plně kvalifikované doménové jméno (FQDN) serveru nebo jméno subjektu.",
       csr_gen_san_help: "Všechny domény a IP adresy (oddělené čárkou), pro které má budoucí certifikát platit.",
-      algo_rsa_2048_compat: "RSA 2048 (Univerzální kompatibilita)",
-      algo_rsa_3072_higher: "RSA 3072 (Vyšší bezpečnost)",
-      algo_rsa_4096_max: "RSA 4096 (Maximální RSA bezpečnost)",
-      algo_p256_tls: "ECDSA P-256 (Moderní, rychlé, standard pro TLS)",
-      algo_p384_high: "ECDSA P-384 (Vysoká bezpečnost)",
-      algo_ed25519_rfc: "ECC Ed25519 (Moderní RFC 8410)",
       csr_gen_algo_help: "Vybere kryptografický algoritmus, kterým se vygeneruje pár klíčů a následně podepíše samotná CSR žádost.",
       btn_gen_csr: "🛠️ Vygenerovat klíč a CSR žádost",
       cg_out_heading: "Výstup: Vygenerované soubory",
@@ -977,10 +970,10 @@
       drop_imp_hint: "(lze vložit i spojený certifikát s privátním klíčem najednou)",
       label_imp_content: "Obsah souboru (PEM blok)",
       btn_imp_cert: "Importovat certifikát do klíčenky",
-      import_h4_2: "2. Šifrovaná záloha celé aplikace (Workspace Backup)",
-      import_backup_desc: "Stáhněte kompletní strom klíčenky do jednoho <code>.json</code> souboru chráněného silným heslem (šifrováno lokálně pomocí AES-256-GCM). Lze následně otevřít na libovolném jiném zařízení.",
-      btn_export_ws: "🔒 Exportovat zašifrovanou zálohu",
-      btn_restore_ws: "🔓 Obnovit stav ze zálohy",
+      import_h4_2: "2. Šifrovaná záloha celé aplikace",
+      import_backup_desc: "Stáhněte kompletní strom klíčenky do jednoho <code>.json</code> souboru chráněného silným heslem (šifrováno lokálně pomocí AES-256-GCM). Lze následně otevřít na libovolném jiném zařízení. <b>Import ze zálohy nahradí veškerá dosavadní uložená data!</b>",
+      btn_export_ws: "🔒 Exportovat zálohu",
+      btn_restore_ws: "🔓 Obnovit ze zálohy",
 
       // Modal
       modal_preview_title: "Náhled PEM",
@@ -1045,7 +1038,7 @@
       toast_restore_error: "Chyba obnovy: Nesprávné heslo nebo poškozený soubor.",
       toast_restore_invalid_format: "Neplatný formát zálohy: Soubor neobsahuje povinná pole (salt, iv, data).",
       toast_restore_invalid_json: "Chyba při čtení zálohy: Soubor není platný JSON.",
-      confirm_app_version_mismatch: "Upozornění: Soubor pochází z jiné verze nebo aplikace ('{app}'). Očekáváno: '{expected}'. Chcete přesto pokračovat v importu?",
+      confirm_app_version_mismatch: "Upozornění: Soubor pochází z jiné verze nebo aplikace ('{app}'). Aktuálně používáte: '{expected}'. Chcete přesto pokračovat v importu?",
       app_version_unknown: "Neznámá",
       toast_chain_downloaded: "Celý řetězec důvěry (Chain PEM) byl stažen.",
       toast_p12_ecc_unsupported: "Export PKCS#12 pro ECC klíče není lokálně podporován. Použijte stažené .CRT a .KEY soubory.",
@@ -1073,7 +1066,7 @@
       keyring_title: "Virtual Keyring",
       keyring_desc: "Main overview of generated and imported authorities, certificates, and keys.",
       keyring_alert_strong: "Local storage is active",
-      keyring_alert_desc: "Private keys are stored directly in this browser's memory. For secure transfer to another device, use <em>Encrypted Backup Export</em>.",
+      keyring_alert_desc: "Private keys are stored in plaintext directly in this browser's memory. For secure transfer to another device, use <em>Encrypted Backup Export</em>.",
       keyring_toggle_ls: "💾 Store keyring permanently in browser (LocalStorage)",
       keyring_btn_export: "🔒 Export Backup (.json)",
       keyring_btn_clear: "🗑️ Clear All",
@@ -1090,7 +1083,7 @@
 
       // Panel: Trust Graph
       graph_title: "Trust Graph (Chain of Trust)",
-      graph_desc: "Visual representation of your certificate hierarchy. Cross-signatures (Cross-Signed) are displayed with a dashed line towards the target authority.",
+      graph_desc: "Visual representation of your certificate hierarchy. Cross-signatures are displayed with a dashed line towards the target authority.",
       graph_badge_leaf: "End-Entity (Leaf)",
       graph_badge_revoked: "Revoked",
       graph_empty: "Keyring is empty. Please generate a Root CA first.",
@@ -1107,18 +1100,17 @@
       field_ou: "Organizational Unit (OU)",
       placeholder_not_used: "not used",
       placeholder_optional: "Optional",
-      placeholder_ou_optional: "Optional (e.g. IT Dept)",
       field_country: "Country (C)",
-      placeholder_country: "Two-letter ISO code (CZ)",
+      placeholder_country: "Two-letter ISO code",
       field_city: "City (L)",
       field_city_loc: "City / Locality (L)",
       field_algo: "Key Algorithm",
-      algo_rsa_2048: "RSA 2048 (Fast, legacy standard)",
-      algo_rsa_3072: "RSA 3072 (Modern secure standard)",
-      algo_rsa_4096: "RSA 4096 (High security)",
+      algo_rsa_2048: "RSA 2048 (Fast, legacy standard, universal compatibility)",
+      algo_rsa_3072: "RSA 3072 (Higher security)",
+      algo_rsa_4096: "RSA 4096 (Very high security)",
       algo_ecdsa_p256: "ECDSA P-256 (Modern, fast, web standard)",
-      algo_ecdsa_p384: "ECDSA P-384 (High security, NSA Suite B)",
-      algo_ed25519: "ECC Ed25519 (Extremely fast, modern)",
+      algo_ecdsa_p384: "ECDSA P-384 (Modern, very high security)",
+      algo_ed25519: "ECC Ed25519 (Extremely fast, modern, worse compatibility)",
       root_algo_help: "For a new Root CA, RSA 4096, ECDSA P-384 or Ed25519 is recommended today.",
       field_validity_years: "Validity (years)",
       root_validity_help: "Root authority is usually issued for a very long period (10-20 years).",
@@ -1165,12 +1157,6 @@
       field_cn_csr_gen: "Common Name (CN) / Main Domain",
       csr_gen_cn_help: "Fully qualified domain name (FQDN) of the server or subject name.",
       csr_gen_san_help: "All domains and IP addresses (comma-separated) for which the certificate should be valid.",
-      algo_rsa_2048_compat: "RSA 2048 (Universal compatibility)",
-      algo_rsa_3072_higher: "RSA 3072 (Higher security)",
-      algo_rsa_4096_max: "RSA 4096 (Maximum RSA security)",
-      algo_p256_tls: "ECDSA P-256 (Modern, fast, TLS standard)",
-      algo_p384_high: "ECDSA P-384 (High security)",
-      algo_ed25519_rfc: "ECC Ed25519 (Modern RFC 8410)",
       csr_gen_algo_help: "Selects cryptographic algorithm used to generate key pair and sign the CSR request itself.",
       btn_gen_csr: "🛠️ Generate Key and CSR Request",
       cg_out_heading: "Output: Generated Files",
@@ -1242,10 +1228,10 @@
       drop_imp_hint: "(combined certificate and private key can also be dropped)",
       label_imp_content: "File Content (PEM block)",
       btn_imp_cert: "Import Certificate to Keyring",
-      import_h4_2: "2. Encrypted Application Backup (Workspace Backup)",
-      import_backup_desc: "Download complete keyring tree into a single password-protected <code>.json</code> file (encrypted locally using AES-256-GCM). Can subsequently be opened on any other device.",
-      btn_export_ws: "🔒 Export Encrypted Backup",
-      btn_restore_ws: "🔓 Restore State from Backup",
+      import_h4_2: "2. Encrypted Workspace Backup",
+      import_backup_desc: "Download complete keyring tree into a single password-protected <code>.json</code> file (encrypted locally using AES-256-GCM). Can subsequently be opened on any other device. <b>Importing from a backup will replace all currently saved data!</b>",
+      btn_export_ws: "🔒 Export Backup",
+      btn_restore_ws: "🔓 Restore Backup",
 
       // Modal
       modal_preview_title: "PEM Preview",
@@ -1310,7 +1296,7 @@
       toast_restore_error: "Restore error: Incorrect password or corrupted file.",
       toast_restore_invalid_format: "Invalid backup format: File is missing required fields (salt, iv, data).",
       toast_restore_invalid_json: "Error reading backup: File is not valid JSON.",
-      confirm_app_version_mismatch: "Warning: The file comes from a different version or application ('{app}'). Expected: '{expected}'. Do you still want to proceed with the import?",
+      confirm_app_version_mismatch: "Warning: The file comes from a different version or application ('{app}'). You are using: '{expected}'. Do you still want to proceed with the import?",
       app_version_unknown: "Unknown",
       toast_chain_downloaded: "Complete trust chain (Chain PEM) downloaded.",
       toast_p12_ecc_unsupported: "PKCS#12 export for ECC keys is not locally supported. Use downloaded .CRT and .KEY files.",
