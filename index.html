@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>PKI Mega-Toolbox 2.0 | Advanced X.509 Studio</title>
+  <title>PKI Lab 2.3 | Advanced X.509 Studio</title>
 
   <!-- Fonty (Montserrat) -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -192,7 +192,7 @@
   <!-- SIDEBAR NAVIGATION -->
   <div class="sidebar">
     <div class="sidebar-header">
-      <h2>PKI Studio <span>v2.2</span></h2>
+      <h2>PKI Lab <span id="app-version-badge">v???</span></h2>
       <button class="lang-switch-btn" id="lang-btn" onclick="toggleLanguage()" title="Přepnout jazyk / Switch language" aria-label="Switch language">
         <span id="lang-opt-cs" class="lang-opt active">CZ</span><span class="lang-sep">/</span><span id="lang-opt-en" class="lang-opt">EN</span>
       </button>
@@ -601,6 +601,16 @@
 <div id="toast-container"></div>
 
 <script>
+  // --- KONSTANTY A VERZE APLIKACE (Single Source of Truth) ---
+  const APP_VERSION = '2.3';
+  const APP_ID = `PKI-Lab-v${APP_VERSION}`;
+
+  function updateAppVersionBadge() {
+    const badge = document.getElementById('app-version-badge');
+    if (badge) badge.textContent = `v${APP_VERSION}`;
+  }
+  updateAppVersionBadge();
+
   // --- HLOUBKOVÝ PATCH PRO NODE-FORGE 1.3.1 (Plná podpora RSA, ECDSA P-256/P-384 a Ed25519 v X.509 a PKCS#10 CSR) ---
   if (window.forge && forge.pki) {
     // 1. Parsování SubjectPublicKeyInfo (RSA + fallback pro ECDSA/Ed25519)
@@ -737,6 +747,44 @@
           }
         }
         return csrAsn1;
+      };
+    }
+
+    // 7. RFC 5280 & Apple Keychain ochrana pro Authority Key Identifier (AKI)
+    // - keyIdentifier MUSÍ být přesně 20 bajtů binárních dat (160bitový SHA-1 hash), nikoliv 40 ASCII znaků hex
+    // - critical MUSÍ být explicitně false
+    // - Rozšíření NESMÍ obsahovat authorityCertIssuer ani authorityCertSerialNumber (v DER způsobují Apple Keychain chybu)
+    const sanitizeAkiExtension = function(ext) {
+      if (!ext || (ext.name !== 'authorityKeyIdentifier' && ext.id !== '2.5.29.35')) return;
+      ext.critical = false;
+      delete ext.authorityCertIssuer;
+      delete ext.authorityCertSerialNumber;
+      delete ext.serialNumber;
+      if (typeof ext.keyIdentifier === 'string') {
+        const cleanHex = ext.keyIdentifier.replace(/[^0-9a-fA-F]/g, '');
+        if (cleanHex.length === 40 && ext.keyIdentifier.length === 40) {
+          ext.keyIdentifier = forge.util.hexToBytes(cleanHex);
+        }
+      }
+    };
+
+    const origExtToAsn1 = forge.pki.certificateExtensionToAsn1;
+    if (origExtToAsn1) {
+      forge.pki.certificateExtensionToAsn1 = function(ext) {
+        sanitizeAkiExtension(ext);
+        return origExtToAsn1(ext);
+      };
+    }
+
+    const origExtsToAsn1 = forge.pki.certificateExtensionsToAsn1;
+    if (origExtsToAsn1) {
+      forge.pki.certificateExtensionsToAsn1 = function(exts) {
+        if (Array.isArray(exts)) {
+          for (let i = 0; i < exts.length; i++) {
+            sanitizeAkiExtension(exts[i]);
+          }
+        }
+        return origExtsToAsn1(exts);
       };
     }
   }
@@ -995,6 +1043,10 @@
       prompt_import_pass: "Zadejte heslo pro dešifrování souboru \"{name}\":",
       toast_restore_success: "Klíčenka úspěšně obnovena ({count} položek)!",
       toast_restore_error: "Chyba obnovy: Nesprávné heslo nebo poškozený soubor.",
+      toast_restore_invalid_format: "Neplatný formát zálohy: Soubor neobsahuje povinná pole (salt, iv, data).",
+      toast_restore_invalid_json: "Chyba při čtení zálohy: Soubor není platný JSON.",
+      confirm_app_version_mismatch: "Upozornění: Soubor pochází z jiné verze nebo aplikace ('{app}'). Očekáváno: '{expected}'. Chcete přesto pokračovat v importu?",
+      app_version_unknown: "Neznámá",
       toast_chain_downloaded: "Celý řetězec důvěry (Chain PEM) byl stažen.",
       toast_p12_ecc_unsupported: "Export PKCS#12 pro ECC klíče není lokálně podporován. Použijte stažené .CRT a .KEY soubory.",
       prompt_p12_pass: "Zadejte heslo pro exportovaný .p12 (.pfx) kontejner:",
@@ -1256,6 +1308,10 @@
       prompt_import_pass: "Enter password to decrypt file \"{name}\":",
       toast_restore_success: "Keyring successfully restored ({count} items)!",
       toast_restore_error: "Restore error: Incorrect password or corrupted file.",
+      toast_restore_invalid_format: "Invalid backup format: File is missing required fields (salt, iv, data).",
+      toast_restore_invalid_json: "Error reading backup: File is not valid JSON.",
+      confirm_app_version_mismatch: "Warning: The file comes from a different version or application ('{app}'). Expected: '{expected}'. Do you still want to proceed with the import?",
+      app_version_unknown: "Unknown",
       toast_chain_downloaded: "Complete trust chain (Chain PEM) downloaded.",
       toast_p12_ecc_unsupported: "PKCS#12 export for ECC keys is not locally supported. Use downloaded .CRT and .KEY files.",
       prompt_p12_pass: "Enter password for exported .p12 (.pfx) container:",
@@ -1554,6 +1610,7 @@
   }
 
   function initStorage() {
+    updateAppVersionBadge();
     initLanguage();
     const saved = localStorage.getItem('pki_store_v2');
     const toggle = document.getElementById('toggle-ls');
@@ -1860,6 +1917,85 @@
     return cert;
   }
 
+  // ---- RFC 5280 & CA/B FORUM: AUTHORITY KEY IDENTIFIER (AKI) PRO NE-ROOT CERTIFIKÁTY ----
+  // Generuje striktně standardní AKI rozšíření pro Intermediate CA a koncové (Leaf / CSR / Cross) certifikáty:
+  // 1. keyIdentifier MUSÍ být binární SHA-1 hash o délce přesně 20 bajtů (160 bitů) SPKI vystavující CA.
+  //    Pokud je k dispozici 40znakový hex string (z SKI vystavitele), převede se pomocí forge.util.hexToBytes().
+  // 2. critical MUSÍ být explicitně false.
+  // 3. Rozšíření NESMÍ obsahovat authorityCertIssuer ani authorityCertSerialNumber (v DER způsobují Apple Keychain chybu).
+  function createAuthorityKeyIdentifier(issuerCert) {
+    if (!issuerCert) {
+      throw new Error('Nelze vytvořit Authority Key Identifier bez certifikátu vystavitele.');
+    }
+
+    let keyBytes = null;
+
+    // A) Zkusíme získat Subject Key Identifier z rozšíření vystavujícího certifikátu
+    if (typeof issuerCert.getExtension === 'function') {
+      const skiExt = issuerCert.getExtension('subjectKeyIdentifier');
+      if (skiExt && skiExt.subjectKeyIdentifier) {
+        const val = skiExt.subjectKeyIdentifier;
+        if (typeof val === 'string') {
+          const clean = val.replace(/[^0-9a-fA-F]/g, '');
+          if (clean.length === 40) {
+            keyBytes = forge.util.hexToBytes(clean);
+          } else if (val.length === 20) {
+            keyBytes = val;
+          }
+        } else if (val && typeof val.getBytes === 'function') {
+          const b = val.getBytes();
+          if (b.length === 20) keyBytes = b;
+        }
+      }
+    }
+
+    // B) Pokud SKI v rozšířeních chybí, spočteme 20bajtový SHA-1 hash SPKI klíče vystavitele (RFC 5280 §4.2.1.2)
+    if (!keyBytes || keyBytes.length !== 20) {
+      if (typeof issuerCert.generateSubjectKeyIdentifier === 'function') {
+        try {
+          const skiBuf = issuerCert.generateSubjectKeyIdentifier();
+          if (skiBuf && typeof skiBuf.getBytes === 'function') {
+            const b = skiBuf.getBytes();
+            if (b.length === 20) keyBytes = b;
+          }
+        } catch (e) {
+          /* fallback */
+        }
+      }
+    }
+
+    // C) Fallback přes forge.pki.getPublicKeyFingerprint
+    if (!keyBytes || keyBytes.length !== 20) {
+      if (issuerCert.publicKey) {
+        try {
+          const fp = forge.pki.getPublicKeyFingerprint(issuerCert.publicKey, {
+            type: 'SubjectPublicKeyInfo',
+            encoding: 'binary'
+          });
+          if (fp && fp.length === 20) {
+            keyBytes = fp;
+          } else if (typeof fp === 'string') {
+            const clean = fp.replace(/[^0-9a-fA-F]/g, '');
+            if (clean.length === 40) keyBytes = forge.util.hexToBytes(clean);
+          }
+        } catch (e) {
+          /* fallback */
+        }
+      }
+    }
+
+    // D) Striktní ověření délky: přesně 20 bajtů (160 bitů)
+    if (!keyBytes || keyBytes.length !== 20) {
+      throw new Error(`Neplatná délka Authority Key Identifier: očekáváno přesně 20 bajtů (160 bitů SHA-1), získáno ${keyBytes ? keyBytes.length : 0} bajtů.`);
+    }
+
+    return {
+      name: 'authorityKeyIdentifier',
+      critical: false,
+      keyIdentifier: keyBytes
+    };
+  }
+
   // ---- NATIVNÍ ECDSA PODPIS POMOCÍ WEBCRYPTO ----
   async function signEcdsaWebCrypto(tbsDerString, keyPem, curve) {
     const hashAlg = curve === 'P-384' ? 'SHA-384' : 'SHA-256';
@@ -2041,7 +2177,7 @@
       // RFC 5280 §4.2.1.9: basicConstraints critical=TRUE, cA=TRUE pro Root CA
       // RFC 5280 §4.2.1.3: keyUsage critical=TRUE s keyCertSign a cRLSign
       // RFC 5280 §4.2.1.2: subjectKeyIdentifier (metoda 1: SHA-1 hash SPKI bit-string)
-      // Pro self-signed Root CA se authorityKeyIdentifier rovná SKI (volitelné, ale doporučené)
+      // RFC 5280 & CA/B Forum: Self-signed Root CA NESMÍ obsahovat authorityKeyIdentifier (pouze subjectKeyIdentifier)
       cert.setExtensions([
         { name: 'basicConstraints', cA: true, critical: true },
         { name: 'keyUsage', keyCertSign: true, cRLSign: true, critical: true },
@@ -2092,12 +2228,9 @@
       const basicCons = { name: 'basicConstraints', cA: true, critical: true };
       if (!isNaN(pathLen) && pathLen >= 0) basicCons.pathLenConstraint = pathLen;
 
-      // RFC 5280 §4.2.1.1: authorityKeyIdentifier = SKI vystavující CA
+      // RFC 5280 §4.2.1.1: authorityKeyIdentifier = 20bajtový binární SHA-1 hash klíče vystavující CA
       // RFC 5280 §4.2.1.2: subjectKeyIdentifier pro tuto Intermediate CA
-      const skiExt = issuer.certObj.getExtension('subjectKeyIdentifier');
-      const akiExt = skiExt
-        ? { name: 'authorityKeyIdentifier', keyIdentifier: skiExt.subjectKeyIdentifier }
-        : { name: 'authorityKeyIdentifier' };
+      const akiExt = createAuthorityKeyIdentifier(issuer.certObj);
 
       cert.setExtensions([
         basicCons,
@@ -2197,11 +2330,8 @@
       if (isRSA) kuObj.keyEncipherment = true;
       if (isCodeSign) kuObj.nonRepudiation = true;
 
-      // RFC 5280 §4.2.1.1: authorityKeyIdentifier = SKI vystavující CA
-      const skiExt = issuer.certObj.getExtension('subjectKeyIdentifier');
-      const akiExt = skiExt
-        ? { name: 'authorityKeyIdentifier', keyIdentifier: skiExt.subjectKeyIdentifier }
-        : { name: 'authorityKeyIdentifier' };
+      // RFC 5280 §4.2.1.1: authorityKeyIdentifier = 20bajtový binární SHA-1 hash klíče vystavující CA
+      const akiExt = createAuthorityKeyIdentifier(issuer.certObj);
 
       const exts = [
         { name: 'basicConstraints', cA: false, critical: true },
@@ -2396,11 +2526,8 @@
       if (isRsaPublicKey) kuObj.keyEncipherment = true;
       if (isCodeSign) kuObj.nonRepudiation = true;
 
-      // RFC 5280 §4.2.1.1: authorityKeyIdentifier = SKI vystavující CA
-      const skiExt = issuer.certObj.getExtension('subjectKeyIdentifier');
-      const akiExt = skiExt
-        ? { name: 'authorityKeyIdentifier', keyIdentifier: skiExt.subjectKeyIdentifier }
-        : { name: 'authorityKeyIdentifier' };
+      // RFC 5280 §4.2.1.1: authorityKeyIdentifier = 20bajtový binární SHA-1 hash klíče vystavující CA
+      const akiExt = createAuthorityKeyIdentifier(issuer.certObj);
 
       const exts = [
         { name: 'basicConstraints', cA: false, critical: true },
@@ -2447,11 +2574,8 @@
       cert.setSubject(target.certObj.subject.attributes);
       cert.setIssuer(issuer.certObj.subject.attributes);
 
-      // RFC 5280 §4.2.1.1: AKI = SKI podepisující CA; Cross-signed cert zachovává veřejný klíč cíle
-      const skiExt = issuer.certObj.getExtension('subjectKeyIdentifier');
-      const akiExt = skiExt
-        ? { name: 'authorityKeyIdentifier', keyIdentifier: skiExt.subjectKeyIdentifier }
-        : { name: 'authorityKeyIdentifier' };
+      // RFC 5280 §4.2.1.1: AKI = 20bajtový binární SHA-1 hash klíče podepisující CA; Cross-signed cert zachovává veřejný klíč cíle
+      const akiExt = createAuthorityKeyIdentifier(issuer.certObj);
 
       cert.setExtensions([
         { name: 'basicConstraints', cA: true, critical: true },
@@ -2701,7 +2825,7 @@
       // (String.fromCharCode(...largeArray) může selhat při velkých payload)
       const uint8ToHex = (arr) => Array.from(arr).map(b => b.toString(16).padStart(2, '0')).join('');
       const backupObj = {
-        app: 'PKI-Studio-2.2',
+        app: APP_ID,
         cipher: 'AES-256-GCM-PBKDF2',
         salt: uint8ToHex(salt),
         iv: uint8ToHex(iv), 
@@ -2723,35 +2847,72 @@
   }
 
   async function importEncryptedWorkspace(event) {
-    const file = event.target.files[0];
+    const fileInput = event.target;
+    const file = fileInput.files && fileInput.files[0];
     if (!file) return;
-    const password = prompt(t('prompt_import_pass', { name: file.name }));
-    if (!password) return;
 
-    const reader = new FileReader();
-    reader.onload = async (ev) => {
+    try {
+      const fileContent = await (file.text ? file.text() : new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = () => resolve(reader.result);
+        reader.onerror = () => reject(new Error('File read error'));
+        reader.readAsText(file);
+      }));
+
+      let parsed;
       try {
-        const backupObj = JSON.parse(ev.target.result);
-        const salt = hexToUint8(backupObj.salt);
-        const iv = hexToUint8(backupObj.iv);
-        const cipherBytes = hexToUint8(backupObj.data);
-
-        const aesKey = await deriveAesKey(password, salt);
-        const plainBuf = await window.crypto.subtle.decrypt({ name: 'AES-GCM', iv }, aesKey, cipherBytes);
-        const decoded = JSON.parse(new TextDecoder().decode(plainBuf));
-
-        idCounter = decoded.idCounter || 1;
-        store = decoded.store.map(reconstructItem);
-        syncStore();
-        updateCaSelects();
-        renderKeyring();
-        showToast(t('toast_restore_success', { count: store.length }), 'success');
-      } catch (err) {
-        showToast(t('toast_restore_error'), 'error');
+        parsed = JSON.parse(fileContent);
+      } catch (e) {
+        showToast(t('toast_restore_invalid_json'), 'error');
+        fileInput.value = '';
+        return;
       }
-    };
-    reader.readAsText(file);
-    event.target.value = '';
+
+      // 1. Ověření existence povinných polí (salt, iv, data)
+      if (!parsed || typeof parsed !== 'object' || !parsed.salt || !parsed.iv || !parsed.data) {
+        showToast(t('toast_restore_invalid_format'), 'error');
+        fileInput.value = '';
+        return;
+      }
+
+      // 2. Kontrola pole app a verze
+      if (parsed.app !== APP_ID) {
+        const appName = parsed.app || t('app_version_unknown');
+        const warnMsg = t('confirm_app_version_mismatch', { app: appName, expected: APP_ID });
+        const proceed = confirm(warnMsg);
+        if (!proceed) {
+          fileInput.value = '';
+          return;
+        }
+      }
+
+      // 3. Zadání hesla
+      const password = prompt(t('prompt_import_pass', { name: file.name }));
+      if (!password) {
+        fileInput.value = '';
+        return;
+      }
+
+      // 4. Dešifrování (PBKDF2 + AES-GCM)
+      const salt = hexToUint8(parsed.salt);
+      const iv = hexToUint8(parsed.iv);
+      const cipherBytes = hexToUint8(parsed.data);
+
+      const aesKey = await deriveAesKey(password, salt);
+      const plainBuf = await window.crypto.subtle.decrypt({ name: 'AES-GCM', iv }, aesKey, cipherBytes);
+      const decoded = JSON.parse(new TextDecoder().decode(plainBuf));
+
+      idCounter = decoded.idCounter || 1;
+      store = decoded.store.map(reconstructItem);
+      syncStore();
+      updateCaSelects();
+      renderKeyring();
+      showToast(t('toast_restore_success', { count: store.length }), 'success');
+    } catch (err) {
+      showToast(t('toast_restore_error'), 'error');
+    } finally {
+      fileInput.value = '';
+    }
   }
 
   function downloadFile(filename, content) {
