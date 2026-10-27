@@ -197,18 +197,18 @@
         <span id="lang-opt-cs" class="lang-opt active">CZ</span><span class="lang-sep">/</span><span id="lang-opt-en" class="lang-opt">EN</span>
       </button>
     </div>
-    <button class="nav-btn active" onclick="nav('keyring', this)" data-i18n="nav_keyring">🗄️ Správce klíčů</button>
-    <button class="nav-btn" onclick="nav('graph', this)" data-i18n="nav_graph">🕸️ Graf důvěry</button>
+    <button class="nav-btn active" onclick="nav('keyring', this)" data-i18n="nav_keyring">🗄️ Key Manager</button>
+    <button class="nav-btn" onclick="nav('graph', this)" data-i18n="nav_graph">🕸️ Trust Graph</button>
     <div class="nav-divider"></div>
     <button class="nav-btn" onclick="nav('root', this)" data-i18n="nav_root">👑 Root CA</button>
     <button class="nav-btn" onclick="nav('inter', this)" data-i18n="nav_inter">🔗 Intermediate CA</button>
-    <button class="nav-btn" onclick="nav('leaf', this)" data-i18n="nav_leaf">🍃 Koncový certifikát</button>
-    <button class="nav-btn" onclick="nav('csr-gen', this)" data-i18n="nav_csr_gen">🛠️ Vytvořit CSR</button>
-    <button class="nav-btn" onclick="nav('csr', this)" data-i18n="nav_csr">📝 Podepsat CSR</button>
+    <button class="nav-btn" onclick="nav('leaf', this)" data-i18n="nav_leaf">🍃 Leaf Certificate</button>
+    <button class="nav-btn" onclick="nav('csr-gen', this)" data-i18n="nav_csr_gen">🛠️ Create CSR</button>
+    <button class="nav-btn" onclick="nav('csr', this)" data-i18n="nav_csr">📝 Sign CSR</button>
     <button class="nav-btn" onclick="nav('cross', this)" data-i18n="nav_cross">🔀 Cross-Signing</button>
     <div class="nav-divider"></div>
-    <button class="nav-btn" onclick="nav('decoder', this)" data-i18n="nav_decoder">🔍 Dekodér</button>
-    <button class="nav-btn" onclick="nav('import', this)" data-i18n="nav_import">📥 Import / Záloha</button>
+    <button class="nav-btn" onclick="nav('decoder', this)" data-i18n="nav_decoder">🔍 Decoder</button>
+    <button class="nav-btn" onclick="nav('import', this)" data-i18n="nav_import">📥 Import / Backup</button>
   </div>
 
   <!-- MAIN PANELS -->
@@ -216,25 +216,25 @@
     
     <!-- PANEL: KEYRING -->
     <div id="panel-keyring" class="panel active">
-      <h3 data-i18n="keyring_title">Virtuální klíčenka</h3>
-      <p class="desc" data-i18n="keyring_desc">Hlavní přehled vygenerovaných a importovaných autorit, certifikátů a klíčů.</p>
+      <h3 data-i18n="keyring_title">Virtual Keyring</h3>
+      <p class="desc" data-i18n="keyring_desc">Main overview of generated and imported authorities, certificates, and keys.</p>
       
       <div class="alert-box" id="ls-alert" style="display: none;">
         <span>⚠️</span>
         <div>
-          <strong data-i18n="keyring_alert_strong">Lokální ukládání je aktivní</strong><br>
-          <span data-i18n="keyring_alert_desc">Privátní klíče se ukládají v plaintextu do paměti tohoto prohlížeče. Pro bezpečný přenos na jiné zařízení využijte <em>Šifrovaný export zálohy</em>.</span>
+          <strong data-i18n="keyring_alert_strong">Local storage is active</strong><br>
+          <span data-i18n="keyring_alert_desc">Private keys are stored in plaintext directly in this browser's memory. For secure transfer to another device, use <em>Encrypted Backup Export</em>.</span>
         </div>
       </div>
 
       <div class="toolbar">
         <label class="checkbox-label" style="font-weight: bold;">
           <input type="checkbox" id="toggle-ls" onchange="toggleStorage()"> 
-          <span data-i18n="keyring_toggle_ls">💾 Ukládat klíčenku trvale v prohlížeči (LocalStorage)</span>
+          <span data-i18n="keyring_toggle_ls">💾 Store keyring permanently in browser (LocalStorage)</span>
         </label>
         <div style="display:flex; gap:8px;">
-          <button class="btn-sm special" onclick="exportEncryptedWorkspace()" data-i18n="keyring_btn_export">🔒 Export zálohy (.json)</button>
-          <button class="btn-sm btn-danger" onclick="clearStore()" data-i18n="keyring_btn_clear">🗑️ Smazat vše</button>
+          <button class="btn-sm special" onclick="exportEncryptedWorkspace()" data-i18n="keyring_btn_export">🔒 Export Backup (.json)</button>
+          <button class="btn-sm btn-danger" onclick="clearStore()" data-i18n="keyring_btn_clear">🗑️ Clear All</button>
         </div>
       </div>
 
@@ -243,225 +243,225 @@
 
     <!-- PANEL: CHAIN OF TRUST VISUALIZER -->
     <div id="panel-graph" class="panel">
-      <h3 data-i18n="graph_title">Grafický pavouk (Chain of Trust)</h3>
-      <p class="desc" data-i18n="graph_desc">Vizuální reprezentace hierarchie vašich certifikátů. Křížové podpisy (Cross-Signed) se zobrazují přerušovanou čarou směrem k cílové autoritě.</p>
+      <h3 data-i18n="graph_title">Trust Graph (Chain of Trust)</h3>
+      <p class="desc" data-i18n="graph_desc">Visual representation of your certificate hierarchy. Cross-signatures are displayed with a dashed line towards the target authority.</p>
       <div style="margin-bottom: 16px; display: flex; gap: 10px; flex-wrap: wrap; font-size: 13px;">
         <span class="badge root">Root CA</span>
         <span class="badge inter">Intermediate / Cross CA</span>
-        <span class="badge leaf" data-i18n="graph_badge_leaf">Koncový (Leaf)</span>
-        <span class="badge revoked" data-i18n="graph_badge_revoked">Zneplatněný (Revoked)</span>
+        <span class="badge leaf" data-i18n="graph_badge_leaf">End-Entity (Leaf)</span>
+        <span class="badge revoked" data-i18n="graph_badge_revoked">Revoked</span>
       </div>
       <div class="graph-box" id="mermaid-box"></div>
     </div>
 
     <!-- PANEL: ROOT CA -->
     <div id="panel-root" class="panel">
-      <h3 data-i18n="root_title">Generátor Root CA</h3>
-      <p class="desc" data-i18n="root_desc">Nejvyšší kořenová autorita (Self-Signed). Bez ní nelze podepisovat další certifikáty.</p>
+      <h3 data-i18n="root_title">Root CA Generator</h3>
+      <p class="desc" data-i18n="root_desc">Top-level root authority (Self-Signed). Required to sign subordinate certificates.</p>
       <div class="grid-2">
         <div class="full-width">
           <label data-i18n="field_cn">Common Name (CN)</label>
-          <input type="text" id="r-cn" value="Moje Globalni Root CA">
-          <span class="help-text" data-i18n="root_cn_help">Hlavní název autority, který se zobrazí v prohlížeči uživatele.</span>
+          <input type="text" id="r-cn">
+          <span class="help-text" data-i18n="root_cn_help">Main authority name displayed in the user's browser.</span>
         </div>
-        <div><label data-i18n="field_org">Organizace (O)</label><input type="text" id="r-o"></div>
+        <div><label data-i18n="field_org">Organization (O)</label><input type="text" id="r-o"></div>
         <div>
-          <label data-i18n="field_ou">Org. jednotka (OU)</label>
+          <label data-i18n="field_ou">Organizational Unit (OU)</label>
           <input type="text" id="r-ou" value="" placeholder="not used" data-i18n-placeholder="placeholder_not_used">
         </div>
-        <div><label data-i18n="field_country">Země (C)</label><input type="text" id="r-c"></div>
-        <div><label data-i18n="field_city">Město (L)</label><input type="text" id="r-l"></div>
+        <div><label data-i18n="field_country">Country (C)</label><input type="text" id="r-c"></div>
+        <div><label data-i18n="field_city">City / Region (L)</label><input type="text" id="r-l"></div>
         <div>
-          <label data-i18n="field_algo">Algoritmus klíče</label>
+          <label data-i18n="field_algo">Key Algorithm</label>
           <select id="r-algo">
-            <option value="RSA-2048" data-i18n="algo_rsa_2048">RSA 2048 (Rychlé, vysoká kompatibilita)</option>
-            <option value="RSA-3072" data-i18n="algo_rsa_3072">RSA 3072 (Vyšší bezpečnost)</option>
-            <option value="RSA-4096" selected data-i18n="algo_rsa_4096">RSA 4096 (Maximální bezpečnost)</option>
-            <option value="ECDSA-P-256" data-i18n="algo_ecdsa_p256">ECDSA P-256 (Moderní, rychlé, standard pro TLS)</option>
-            <option value="ECDSA-P-384" data-i18n="algo_ecdsa_p384">ECDSA P-384 (Vysoká bezpečnost)</option>
-            <option value="ED25519" data-i18n="algo_ed25519">ECC Ed25519 (Velmi rychlé, moderní, horší kompatibilita)</option>
+            <option value="RSA-2048" data-i18n="algo_rsa_2048">RSA 2048 (Fast, legacy standard, universal compatibility)</option>
+            <option value="RSA-3072" data-i18n="algo_rsa_3072">RSA 3072 (Higher security)</option>
+            <option value="RSA-4096" selected data-i18n="algo_rsa_4096">RSA 4096 (Very high security)</option>
+            <option value="ECDSA-P-256" data-i18n="algo_ecdsa_p256">ECDSA P-256 (Modern, fast, web standard)</option>
+            <option value="ECDSA-P-384" data-i18n="algo_ecdsa_p384">ECDSA P-384 (Modern, very high security)</option>
+            <option value="ED25519" data-i18n="algo_ed25519">ECC Ed25519 (Extremely fast, modern, worse compatibility)</option>
           </select>
-          <span class="help-text" data-i18n="root_algo_help">Pro novou Root CA se dnes doporučuje RSA 4096, ECDSA P-384 nebo Ed25519.</span>
+          <span class="help-text" data-i18n="root_algo_help">For a new Root CA, RSA 4096, ECDSA P-384 or Ed25519 is recommended today.</span>
         </div>
         <div>
-          <label data-i18n="field_validity_years">Platnost (roky)</label>
+          <label data-i18n="field_validity_years">Validity (years)</label>
           <input type="number" id="r-years" value="20">
-          <span class="help-text" data-i18n="root_validity_help">Kořenová autorita se obvykle vystavuje na velmi dlouhou dobu (10-20 let).</span>
+          <span class="help-text" data-i18n="root_validity_help">Root authority is usually issued for a very long period (10-20 years).</span>
         </div>
       </div>
-      <button class="btn" id="btn-gen-root" onclick="generateRoot()" data-i18n="btn_gen_root">Vygenerovat Root CA</button>
+      <button class="btn" id="btn-gen-root" onclick="generateRoot()" data-i18n="btn_gen_root">Generate Root CA</button>
     </div>
 
     <!-- PANEL: INTERMEDIATE CA -->
     <div id="panel-inter" class="panel">
-      <h3 data-i18n="inter_title">Generátor Intermediate CA</h3>
-      <p class="desc" data-i18n="inter_desc">Podřízená autorita pro běžné (denní) vydávání certifikátů. Zvyšuje bezpečnost – Root CA může zůstat uložena offline.</p>
+      <h3 data-i18n="inter_title">Intermediate CA Generator</h3>
+      <p class="desc" data-i18n="inter_desc">Subordinate authority for day-to-day certificate issuance. Enhances security – Root CA can remain stored offline.</p>
       <div class="grid-2">
         <div class="full-width">
-          <label data-i18n="field_issuer_ca">Vystavitel (Existující CA)</label>
+          <label data-i18n="field_issuer_ca">Issuer (Existing CA)</label>
           <select id="i-issuer" class="ca-select"></select>
-          <span class="help-text" data-i18n="inter_issuer_help">Vyberte rodičovskou autoritu, která tuto Intermediate CA podepíše.</span>
+          <span class="help-text" data-i18n="inter_issuer_help">Select the parent authority that will sign this Intermediate CA.</span>
         </div>
         <div class="full-width">
           <label data-i18n="field_cn">Common Name (CN)</label>
           <input type="text" id="i-cn">
         </div>
         <div>
-          <label data-i18n="field_algo">Algoritmus klíče</label>
+          <label data-i18n="field_algo">Key Algorithm</label>
           <select id="i-algo">
-            <option value="RSA-2048" data-i18n="algo_rsa_2048">RSA 2048 (Rychlé, vysoká kompatibilita)</option>
-            <option value="RSA-3072" data-i18n="algo_rsa_3072">RSA 3072 (Vyšší bezpečnost)</option>
-            <option value="RSA-4096" selected data-i18n="algo_rsa_4096">RSA 4096 (Maximální bezpečnost)</option>
-            <option value="ECDSA-P-256" data-i18n="algo_ecdsa_p256">ECDSA P-256 (Moderní, rychlé, standard pro TLS)</option>
-            <option value="ECDSA-P-384" data-i18n="algo_ecdsa_p384">ECDSA P-384 (Vysoká bezpečnost)</option>
-            <option value="ED25519" data-i18n="algo_ed25519">ECC Ed25519 (Velmi rychlé, moderní, horší kompatibilita)</option>
+            <option value="RSA-2048" data-i18n="algo_rsa_2048">RSA 2048 (Fast, legacy standard, universal compatibility)</option>
+            <option value="RSA-3072" data-i18n="algo_rsa_3072">RSA 3072 (Higher security)</option>
+            <option value="RSA-4096" selected data-i18n="algo_rsa_4096">RSA 4096 (Very high security)</option>
+            <option value="ECDSA-P-256" data-i18n="algo_ecdsa_p256">ECDSA P-256 (Modern, fast, web standard)</option>
+            <option value="ECDSA-P-384" data-i18n="algo_ecdsa_p384">ECDSA P-384 (Modern, very high security)</option>
+            <option value="ED25519" data-i18n="algo_ed25519">ECC Ed25519 (Extremely fast, modern, worse compatibility)</option>
           </select>
         </div>
         <div>
-          <label data-i18n="field_validity_years">Platnost (roky)</label>
+          <label data-i18n="field_validity_years">Validity (years)</label>
           <input type="number" id="i-years" value="5">
         </div>
         <div class="full-width">
-          <label data-i18n="field_pathlen">Max. hloubka řetězu (PathLenConstraint)</label>
+          <label data-i18n="field_pathlen">Max Path Depth (PathLenConstraint)</label>
           <input type="number" id="i-pathlen" value="0">
-          <span class="help-text" data-i18n="inter_pathlen_help">Určuje, kolik podřízených CA může tato autorita vydat. Hodnota "0" znamená, že může vydávat pouze koncové (Leaf) certifikáty.</span>
+          <span class="help-text" data-i18n="inter_pathlen_help">Specifies how many subordinate CAs this authority can issue. Value "0" means it can only issue leaf certificates.</span>
         </div>
       </div>
-      <button class="btn" id="btn-gen-inter" onclick="generateInter()" data-i18n="btn_gen_inter">Vytvořit a podepsat Intermediate CA</button>
+      <button class="btn" id="btn-gen-inter" onclick="generateInter()" data-i18n="btn_gen_inter">Create and Sign Intermediate CA</button>
     </div>
 
     <!-- PANEL: LEAF CERTIFICATE -->
     <div id="panel-leaf" class="panel">
-      <h3 data-i18n="leaf_title">Koncový certifikát (Leaf)</h3>
-      <p class="desc" data-i18n="leaf_desc">Koncový certifikát pro HTTPS weby, VPN servery, kontejnery, IoT zařízení nebo identifikaci uživatele.</p>
+      <h3 data-i18n="leaf_title">Leaf Certificate (End-Entity)</h3>
+      <p class="desc" data-i18n="leaf_desc">End-entity certificate for HTTPS websites, VPN servers, containers, IoT devices, or user identification.</p>
       <div class="grid-2">
         <div class="full-width">
-          <label data-i18n="leaf_template_label">⚡ Rychlá šablona profilu</label>
+          <label data-i18n="leaf_template_label">⚡ Quick Profile Template</label>
           <select id="l-template" onchange="applyLeafTemplate()">
-            <option value="custom" data-i18n="tpl_custom">-- Vlastní nastavení (Výchozí HTTPS web) --</option>
-            <option value="openvpn_srv" data-i18n="tpl_openvpn">🛡️ OpenVPN Server (Server Auth, RSA 2048, 825 dní)</option>
-            <option value="ipsec_cli" data-i18n="tpl_ipsec">🔑 IPsec / mTLS Klient (Client Auth, ECDSA P-256, 365 dní)</option>
-            <option value="docker_reg" data-i18n="tpl_docker">🐳 Docker Registry (Server + Client Auth, RSA 3072, 398 dní)</option>
-            <option value="mqtt_iot" data-i18n="tpl_mqtt">🏠 Smart Home MQTT Node (Server + Client, ECDSA P-256, 1095 dní)</option>
-            <option value="codesign" data-i18n="tpl_codesign">📦 Code Signing (Podpis kódu a balíčků, RSA 4096, 365 dní)</option>
+            <option value="custom" data-i18n="tpl_custom">-- Custom Settings (Default HTTPS Web) --</option>
+            <option value="openvpn_srv" data-i18n="tpl_openvpn">🛡️ OpenVPN Server (Server Auth, RSA 2048, 825 days)</option>
+            <option value="ipsec_cli" data-i18n="tpl_ipsec">🔑 IPsec / mTLS Client (Client Auth, ECDSA P-256, 365 days)</option>
+            <option value="docker_reg" data-i18n="tpl_docker">🐳 Docker Registry (Server + Client Auth, RSA 3072, 398 days)</option>
+            <option value="mqtt_iot" data-i18n="tpl_mqtt">🏠 Smart Home MQTT Node (Server + Client, ECDSA P-256, 1095 days)</option>
+            <option value="codesign" data-i18n="tpl_codesign">📦 Code Signing (Code and package signing, RSA 4096, 365 days)</option>
           </select>
-          <span class="help-text" data-i18n="leaf_template_help">Vyberte šablonu pro automatické předvyplnění hodnot níže.</span>
+          <span class="help-text" data-i18n="leaf_template_help">Select a template to auto-populate the values below.</span>
         </div>
-        <div class="full-width"><label data-i18n="field_issuer_short">Vystavitel (CA)</label><select id="l-issuer" class="ca-select"></select></div>
+        <div class="full-width"><label data-i18n="field_issuer_short">Issuer (CA)</label><select id="l-issuer" class="ca-select"></select></div>
         <div class="full-width">
-          <label data-i18n="field_cn_leaf">Common Name (CN) / Hlavní identifikátor</label>
+          <label data-i18n="field_cn_leaf">Common Name (CN) / Primary Identifier</label>
           <input type="text" id="l-cn" value="www.moje-aplikace.cz">
         </div>
         <div class="full-width">
           <label data-i18n="field_san">Subject Alt Names (SAN)</label>
           <input type="text" id="l-san" value="moje-aplikace.cz, *.moje-aplikace.cz, 10.0.0.5">
-          <span class="help-text" data-i18n="leaf_san_help">Domény nebo IP adresy oddělené čárkou. Moderní prohlížeče (Chrome/Edge) vyžadují platný SAN, jinak certifikát odmítnou.</span>
+          <span class="help-text" data-i18n="leaf_san_help">Comma-separated domains or IP addresses. Modern browsers require valid SAN, otherwise the certificate will be rejected.</span>
         </div>
         <div>
-          <label data-i18n="field_algo">Algoritmus klíče</label>
+          <label data-i18n="field_algo">Key Algorithm</label>
           <select id="l-algo">
-            <option value="RSA-2048" data-i18n="algo_rsa_2048">RSA 2048 (Rychlé, vysoká kompatibilita)</option>
-            <option value="RSA-3072" data-i18n="algo_rsa_3072">RSA 3072 (Vyšší bezpečnost)</option>
-            <option value="RSA-4096" selected data-i18n="algo_rsa_4096">RSA 4096 (Maximální bezpečnost)</option>
-            <option value="ECDSA-P-256" data-i18n="algo_ecdsa_p256">ECDSA P-256 (Moderní, rychlé, standard pro TLS)</option>
-            <option value="ECDSA-P-384" data-i18n="algo_ecdsa_p384">ECDSA P-384 (Vysoká bezpečnost)</option>
-            <option value="ED25519" data-i18n="algo_ed25519">ECC Ed25519 (Velmi rychlé, moderní, horší kompatibilita)</option>
+            <option value="RSA-2048" data-i18n="algo_rsa_2048">RSA 2048 (Fast, legacy standard, universal compatibility)</option>
+            <option value="RSA-3072" data-i18n="algo_rsa_3072">RSA 3072 (Higher security)</option>
+            <option value="RSA-4096" selected data-i18n="algo_rsa_4096">RSA 4096 (Very high security)</option>
+            <option value="ECDSA-P-256" data-i18n="algo_ecdsa_p256">ECDSA P-256 (Modern, fast, web standard)</option>
+            <option value="ECDSA-P-384" data-i18n="algo_ecdsa_p384">ECDSA P-384 (Modern, very high security)</option>
+            <option value="ED25519" data-i18n="algo_ed25519">ECC Ed25519 (Extremely fast, modern, worse compatibility)</option>
           </select>
         </div>
         <div>
-          <label data-i18n="field_validity_days">Platnost (dny)</label>
+          <label data-i18n="field_validity_days">Validity (days)</label>
           <input type="number" id="l-days" value="398">
-          <span class="help-text" data-i18n="leaf_validity_help">Maximum pro veřejné HTTPS weby je dnes 398 dní.</span>
+          <span class="help-text" data-i18n="leaf_validity_help">The maximum validity for public HTTPS websites is currently 398 days.</span>
         </div>
         <div class="full-width">
-          <label data-i18n="field_eku">Povolený účel použití (EKU)</label>
+          <label data-i18n="field_eku">Allowed Purpose of Use (EKU)</label>
           <div class="checkbox-group">
             <label class="checkbox-label"><input type="checkbox" id="eku-server" checked> <span data-i18n="eku_server">Server Auth (HTTPS / TLS Server)</span></label>
-            <label class="checkbox-label"><input type="checkbox" id="eku-client"> <span data-i18n="eku_client">Client Auth (mTLS / VPN Klient)</span></label>
+            <label class="checkbox-label"><input type="checkbox" id="eku-client"> <span data-i18n="eku_client">Client Auth (mTLS / VPN Client)</span></label>
             <label class="checkbox-label"><input type="checkbox" id="eku-email"> <span data-i18n="eku_email">Email Protection (S/MIME)</span></label>
-            <label class="checkbox-label"><input type="checkbox" id="eku-code"> <span data-i18n="eku_code">Code Signing (Podpis SW)</span></label>
+            <label class="checkbox-label"><input type="checkbox" id="eku-code"> <span data-i18n="eku_code">Code Signing (Software Signing)</span></label>
           </div>
-          <span class="help-text" data-i18n="leaf_eku_help">Definuje, k jakému účelu smí operační systém tento certifikát technicky použít. (Pozn.: Key Usage atribut 'Key Encipherment' je vyžadován a nastavován pouze u RSA klíčů, pro ECDSA/Ed25519 se aplikuje čistý Digital Signature).</span>
+          <span class="help-text" data-i18n="leaf_eku_help">Defines what purpose the operating system technically permits this certificate for. (Note: Key Usage attribute 'Key Encipherment' is only required and configured for RSA keys; for ECDSA/Ed25519 only Digital Signature applies).</span>
         </div>
       </div>
-      <button class="btn" id="btn-gen-leaf" onclick="generateLeaf()" data-i18n="btn_gen_leaf">Vystavit koncový certifikát</button>
+      <button class="btn" id="btn-gen-leaf" onclick="generateLeaf()" data-i18n="btn_gen_leaf">Issue Leaf Certificate</button>
     </div>
 
     <!-- PANEL: CSR GENERATOR -->
     <div id="panel-csr-gen" class="panel">
-      <h3 data-i18n="csr_gen_title">Generátor žádosti o certifikát (CSR)</h3>
-      <p class="desc" data-i18n="csr_gen_desc">Vygenerujte nový privátní klíč a odpovídající žádost o podpis (PKCS#10 CSR) pro externí certifikační autoritu nebo pro otestování v sekci Podepsat CSR.</p>
+      <h3 data-i18n="csr_gen_title">Certificate Signing Request (CSR) Generator</h3>
+      <p class="desc" data-i18n="csr_gen_desc">Generate a new private key and corresponding signing request (PKCS#10 CSR) for an external CA or to test in the Sign CSR section.</p>
       
       <div class="grid-2">
         <div class="full-width">
-          <label data-i18n="field_cn_csr_gen">Common Name (CN) / Hlavní doména</label>
+          <label data-i18n="field_cn_csr_gen">Common Name (CN) / Main Domain</label>
           <input type="text" id="cg-cn" value="api.moje-domena.cz">
-          <span class="help-text" data-i18n="csr_gen_cn_help">Plně kvalifikované doménové jméno (FQDN) serveru nebo jméno subjektu.</span>
+          <span class="help-text" data-i18n="csr_gen_cn_help">Fully qualified domain name (FQDN) of the server or subject name.</span>
         </div>
         <div class="full-width">
           <label data-i18n="field_san">Subject Alt Names (SAN)</label>
           <input type="text" id="cg-san" value="api.moje-domena.cz, *.api.moje-domena.cz, 192.168.1.50">
-          <span class="help-text" data-i18n="csr_gen_san_help">Všechny domény a IP adresy (oddělené čárkou), pro které má budoucí certifikát platit.</span>
+          <span class="help-text" data-i18n="csr_gen_san_help">All domains and IP addresses (comma-separated) for which the certificate should be valid.</span>
         </div>
         <div>
-          <label data-i18n="field_org">Organizace (O)</label>
+          <label data-i18n="field_org">Organization (O)</label>
           <input type="text" id="cg-o" placeholder="Optional" data-i18n-placeholder="placeholder_optional">
         </div>
         <div>
-          <label data-i18n="field_ou">Org. jednotka (OU)</label>
+          <label data-i18n="field_ou">Organizational Unit (OU)</label>
           <input type="text" id="cg-ou" placeholder="not used" data-i18n-placeholder="placeholder_not_used">
         </div>
         <div>
-          <label data-i18n="field_country">Země (C)</label>
+          <label data-i18n="field_country">Country (C)</label>
           <input type="text" id="cg-c" maxlength="2" placeholder="Two-letter ISO code" data-i18n-placeholder="placeholder_country">
         </div>
         <div>
-          <label data-i18n="field_city_loc">Město / Lokalita (L)</label>
-          <input type="text" id="cg-l" placeholder="optional" data-i18n-placeholder="placeholder_optional">
+          <label data-i18n="field_city">City / Region (L)</label>
+          <input type="text" id="cg-l" placeholder="Optional" data-i18n-placeholder="placeholder_optional">
         </div>
         <div class="full-width">
-          <label data-i18n="field_algo">Algoritmus klíče</label>
+          <label data-i18n="field_algo">Key Algorithm</label>
           <select id="cg-algo">
-            <option value="RSA-2048" data-i18n="algo_rsa_2048">RSA 2048 (Rychlé, vysoká kompatibilita)</option>
-            <option value="RSA-3072" data-i18n="algo_rsa_3072">RSA 3072 (Vyšší bezpečnost)</option>
-            <option value="RSA-4096" selected data-i18n="algo_rsa_4096">RSA 4096 (Maximální bezpečnost)</option>
-            <option value="ECDSA-P-256" data-i18n="algo_ecdsa_p256">ECDSA P-256 (Moderní, rychlé, standard pro TLS)</option>
-            <option value="ECDSA-P-384" data-i18n="algo_ecdsa_p384">ECDSA P-384 (Vysoká bezpečnost)</option>
-            <option value="ED25519" data-i18n="algo_ed25519">ECC Ed25519 (Velmi rychlé, moderní, nižší kompatibilita)</option>
+            <option value="RSA-2048" data-i18n="algo_rsa_2048">RSA 2048 (Fast, legacy standard, universal compatibility)</option>
+            <option value="RSA-3072" data-i18n="algo_rsa_3072">RSA 3072 (Higher security)</option>
+            <option value="RSA-4096" selected data-i18n="algo_rsa_4096">RSA 4096 (Very high security)</option>
+            <option value="ECDSA-P-256" data-i18n="algo_ecdsa_p256">ECDSA P-256 (Modern, fast, web standard)</option>
+            <option value="ECDSA-P-384" data-i18n="algo_ecdsa_p384">ECDSA P-384 (Modern, very high security)</option>
+            <option value="ED25519" data-i18n="algo_ed25519">ECC Ed25519 (Extremely fast, modern, worse compatibility)</option>
           </select>
-          <span class="help-text" data-i18n="csr_gen_algo_help">Vybere kryptografický algoritmus, kterým se vygeneruje pár klíčů a následně podepíše samotná CSR žádost.</span>
+          <span class="help-text" data-i18n="csr_gen_algo_help">Selects cryptographic algorithm used to generate key pair and sign the CSR request itself.</span>
         </div>
       </div>
 
-      <button class="btn" id="btn-gen-csr" onclick="generateCsr()" data-i18n="btn_gen_csr">🛠️ Vygenerovat klíč a CSR žádost</button>
+      <button class="btn" id="btn-gen-csr" onclick="generateCsr()" data-i18n="btn_gen_csr">🛠️ Generate Key and CSR Request</button>
 
       <!-- Výstupní box pro vygenerované CSR a Klíč -->
       <div id="cg-output-box" style="display:none; margin-top: 30px; border-top: 1px solid var(--border); padding-top: 25px;">
-        <h4 data-i18n="cg_out_heading">Výstup: Vygenerované soubory</h4>
-        <p class="desc" style="margin-bottom: 16px;" data-i18n="cg_out_desc">Privátní klíč (<code>.key</code>) uložte bezpečně na váš server. Soubor žádosti (<code>.csr</code>) předejte certifikační autoritě k podpisu.</p>
+        <h4 data-i18n="cg_out_heading">Output: Generated Files</h4>
+        <p class="desc" style="margin-bottom: 16px;" data-i18n="cg_out_desc">Store private key (<code>.key</code>) securely on your server. Submit request file (<code>.csr</code>) to certificate authority for signing.</p>
         
         <div style="margin-bottom: 18px; display: flex; gap: 10px; flex-wrap: wrap;">
-          <button class="btn-sm special" onclick="sendGeneratedCsrToSign()" data-i18n="btn_send_csr_sign">➡️ Rovnou přenést k podpisu do sekce Podepsat CSR</button>
-          <button class="btn-sm" onclick="sendGeneratedCsrToDecoder()" data-i18n="btn_send_csr_dec">🔍 Zkontrolovat v Dekodéru</button>
+          <button class="btn-sm special" onclick="sendGeneratedCsrToSign()" data-i18n="btn_send_csr_sign">➡️ Transfer directly to Sign CSR section</button>
+          <button class="btn-sm" onclick="sendGeneratedCsrToDecoder()" data-i18n="btn_send_csr_dec">🔍 Inspect in Decoder</button>
         </div>
 
         <div class="grid-2">
           <div>
             <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
-              <label style="margin:0;" data-i18n="label_out_csr">📄 Žádost o podpis (.CSR)</label>
+              <label style="margin:0;" data-i18n="label_out_csr">📄 Signing Request (.CSR)</label>
               <div style="display:flex; gap:6px;">
-                <button class="btn-sm" onclick="copyTextById('cg-out-csr', t('toast_csr_copied'))" data-i18n="btn_copy">📋 Kopírovat</button>
-                <button class="btn-sm special" onclick="downloadGeneratedCsr('csr')" data-i18n="btn_dl_csr">💾 Stáhnout .CSR</button>
+                <button class="btn-sm" onclick="copyTextById('cg-out-csr', t('toast_csr_copied'))" data-i18n="btn_copy">📋 Copy</button>
+                <button class="btn-sm special" onclick="downloadGeneratedCsr('csr')" data-i18n="btn_dl_csr">💾 Download .CSR</button>
               </div>
             </div>
             <textarea id="cg-out-csr" readonly style="min-height: 220px; font-size: 12px; color: #93c5fd;"></textarea>
           </div>
           <div>
             <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
-              <label style="margin:0; color: var(--danger);" data-i18n="label_out_key">🔑 Serverový privátní klíč (.KEY)</label>
+              <label style="margin:0; color: var(--danger);" data-i18n="label_out_key">🔑 Server Private Key (.KEY)</label>
               <div style="display:flex; gap:6px;">
-                <button class="btn-sm" onclick="copyTextById('cg-out-key', t('toast_key_copied'))" data-i18n="btn_copy">📋 Kopírovat</button>
-                <button class="btn-sm warn" onclick="downloadGeneratedCsr('key')" data-i18n="btn_dl_key">💾 Stáhnout .KEY</button>
+                <button class="btn-sm" onclick="copyTextById('cg-out-key', t('toast_key_copied'))" data-i18n="btn_copy">📋 Copy</button>
+                <button class="btn-sm warn" onclick="downloadGeneratedCsr('key')" data-i18n="btn_dl_key">💾 Download .KEY</button>
               </div>
             </div>
             <textarea id="cg-out-key" readonly style="min-height: 220px; font-size: 12px; color: #fca5a5;"></textarea>
@@ -472,80 +472,80 @@
 
     <!-- PANEL: CSR SIGNING -->
     <div id="panel-csr" class="panel">
-      <h3 data-i18n="csr_sign_title">Podepsání žádosti o certifikát (CSR)</h3>
-      <p class="desc" data-i18n="csr_sign_desc">Podepište certifikát pro zařízení, ke kterému nemáte (nebo nesmíte mít) privátní klíč. Zařízení vám dodá pouze soubor <code>.csr</code>.</p>
+      <h3 data-i18n="csr_sign_title">Certificate Signing Request (CSR) Signing</h3>
+      <p class="desc" data-i18n="csr_sign_desc">Sign a certificate for a device when you do not (or must not) possess the private key. The device only provides a <code>.csr</code> file.</p>
       
       <div class="drop-zone" onclick="document.getElementById('file-csr').click()" ondragover="handleDragOver(event, this)" ondragleave="handleDragLeave(this)" ondrop="handleDrop(event, this, 'csr-pem', parseCsrInput)">
         <span style="font-size: 24px;">📄</span>
-        <strong data-i18n="drop_csr">Přetáhněte soubor .csr nebo .pem sem</strong>
-        <span style="font-size: 13px;" data-i18n="drop_or_browse">nebo klikněte pro výběr z disku</span>
+        <strong data-i18n="drop_csr">Drag & drop .csr or .pem file here</strong>
+        <span style="font-size: 13px;" data-i18n="drop_or_browse">or click to browse from disk</span>
         <input type="file" id="file-csr" accept=".csr,.pem,.txt" onchange="handleFileSelect(event, 'csr-pem', parseCsrInput)">
       </div>
 
-      <label data-i18n="label_csr_pem">Obsah CSR žádosti (PEM formát)</label>
+      <label data-i18n="label_csr_pem">CSR Request Content (PEM format)</label>
       <textarea id="csr-pem" placeholder="-----BEGIN CERTIFICATE REQUEST-----&#10;...&#10;-----END CERTIFICATE REQUEST-----" oninput="parseCsrInput()"></textarea>
 
       <div id="csr-review-box" style="display:none; margin-top: 25px; border-top: 1px solid var(--border); padding-top: 25px;">
-        <h4 data-i18n="csr_review_title">Revize atributů před podpisem</h4>
+        <h4 data-i18n="csr_review_title">Attribute Review Before Signing</h4>
         <div class="grid-2">
-          <div class="full-width"><label data-i18n="field_sign_by_ca">Podepsat autoritou (CA)</label><select id="csr-issuer" class="ca-select"></select></div>
-          <div><label data-i18n="field_cn_from_csr">Common Name (CN) z CSR</label><input type="text" id="csr-cn"></div>
-          <div><label data-i18n="field_new_validity_days">Nová platnost (dny)</label><input type="number" id="csr-days" value="398"></div>
+          <div class="full-width"><label data-i18n="field_sign_by_ca">Sign with Authority (CA)</label><select id="csr-issuer" class="ca-select"></select></div>
+          <div><label data-i18n="field_cn_from_csr">Common Name (CN) from CSR</label><input type="text" id="csr-cn"></div>
+          <div><label data-i18n="field_new_validity_days">New Validity (days)</label><input type="number" id="csr-days" value="398"></div>
           <div class="full-width">
             <label data-i18n="field_san">Subject Alt Names (SAN)</label>
-            <input type="text" id="csr-san" placeholder="Domény nebo IP adresy oddělené čárkou" data-i18n-placeholder="placeholder_csr_san">
-            <span class="help-text" data-i18n="csr_san_help">Vyčteno ze žádosti. Můžete zde přidat nebo smazat domény, které certifikátu skutečně povolíte.</span>
+            <input type="text" id="csr-san" placeholder="Comma-separated domains or IP addresses" data-i18n-placeholder="placeholder_csr_san">
+            <span class="help-text" data-i18n="csr_san_help">Extracted from request. You can add or remove domains that will actually be permitted for the certificate.</span>
           </div>
           <div class="full-width">
-            <label data-i18n="field_csr_eku">Účel použití (EKU)</label>
+            <label data-i18n="field_csr_eku">Purpose of Use (EKU)</label>
             <div class="checkbox-group">
-              <label class="checkbox-label"><input type="checkbox" id="csr-eku-server" checked> <span data-i18n="eku_server">Server Auth</span></label>
-              <label class="checkbox-label"><input type="checkbox" id="csr-eku-client"> <span data-i18n="eku_client">Client Auth</span></label>
-              <label class="checkbox-label"><input type="checkbox" id="csr-eku-email"> <span data-i18n="eku_email">Email Protection</span></label>
-              <label class="checkbox-label"><input type="checkbox" id="csr-eku-code"> <span data-i18n="eku_code">Code Signing</span></label>
+              <label class="checkbox-label"><input type="checkbox" id="csr-eku-server" checked> <span data-i18n="eku_server">Server Auth (HTTPS / TLS Server)</span></label>
+              <label class="checkbox-label"><input type="checkbox" id="csr-eku-client"> <span data-i18n="eku_client">Client Auth (mTLS / VPN Client)</span></label>
+              <label class="checkbox-label"><input type="checkbox" id="csr-eku-email"> <span data-i18n="eku_email">Email Protection (S/MIME)</span></label>
+              <label class="checkbox-label"><input type="checkbox" id="csr-eku-code"> <span data-i18n="eku_code">Code Signing (Software Signing)</span></label>
             </div>
           </div>
         </div>
-        <button class="btn" onclick="signCsrRequest()" data-i18n="btn_sign_csr">✍️ Zpracovat CSR a vystavit certifikát</button>
+        <button class="btn" onclick="signCsrRequest()" data-i18n="btn_sign_csr">✍️ Process CSR and Issue Certificate</button>
       </div>
     </div>
 
     <!-- PANEL: CROSS-SIGNING -->
     <div id="panel-cross" class="panel">
-      <h3 data-i18n="cross_title">Cross-Signing (Křížové podepsání)</h3>
-      <p class="desc" data-i18n="cross_desc">Křížové podepsání umožní zachovat původní klíč autority, ale zajistí jí důvěru přes jinou, existující (např. starší) Root CA. Slouží často pro plynulý přechod na nové klíče, aniž by stará zařízení ztratila důvěru.</p>
+      <h3 data-i18n="cross_title">Cross-Signing</h3>
+      <p class="desc" data-i18n="cross_desc">Cross-signing preserves the original authority key while establishing trust through another existing (e.g. older) Root CA. Frequently used for smooth migration to new keys without breaking trust on legacy devices.</p>
       <div class="grid-2">
         <div>
-          <label data-i18n="field_target_ca">Cílová CA (Komu zachovat identitu)</label>
+          <label data-i18n="field_target_ca">Target CA (Identity to preserve)</label>
           <select id="c-target" class="ca-select"></select>
         </div>
         <div>
-          <label data-i18n="field_new_issuer">Nový Vystavitel (Kdo poskytne podpis)</label>
+          <label data-i18n="field_new_issuer">New Issuer (Signer)</label>
           <select id="c-issuer" class="ca-select"></select>
         </div>
         <div class="full-width">
-          <label data-i18n="field_new_validity_years">Nová platnost (roky)</label>
+          <label data-i18n="field_new_validity_years">New Validity (years)</label>
           <input type="number" id="c-years" value="3">
         </div>
       </div>
-      <button class="btn" id="btn-gen-cross" onclick="crossSign()" data-i18n="btn_gen_cross">Vytvořit křížový podpis</button>
+      <button class="btn" id="btn-gen-cross" onclick="crossSign()" data-i18n="btn_gen_cross">Create Cross-Signature</button>
     </div>
 
     <!-- PANEL: DECODER -->
     <div id="panel-decoder" class="panel">
-      <h3 data-i18n="decoder_title">Inspektor Certifikátů & CSR</h3>
-      <p class="desc" data-i18n="decoder_desc">Rychlý náhled do obsahu libovolného certifikátu nebo žádosti. Veškeré dekódování probíhá čistě lokálně ve vašem prohlížeči, data se nikam neposílají.</p>
+      <h3 data-i18n="decoder_title">Certificate & CSR Inspector</h3>
+      <p class="desc" data-i18n="decoder_desc">Quick inspection of any certificate or request. All decoding happens strictly locally in your browser; no data is transmitted.</p>
       
       <div class="drop-zone" onclick="document.getElementById('file-dec').click()" ondragover="handleDragOver(event, this)" ondragleave="handleDragLeave(this)" ondrop="handleDrop(event, this, 'dec-pem', decodePem)">
         <span style="font-size: 24px;">🔍</span>
-        <strong data-i18n="drop_decoder">Přetáhněte soubor .crt, .pem nebo .csr sem</strong>
-        <span style="font-size: 13px;" data-i18n="drop_decoder_click">nebo klikněte pro výběr</span>
+        <strong data-i18n="drop_decoder">Drag & drop .crt, .pem, or .csr file here</strong>
+        <span style="font-size: 13px;" data-i18n="drop_decoder_click">or click to browse</span>
         <input type="file" id="file-dec" accept=".crt,.pem,.csr,.cer,.txt" onchange="handleFileSelect(event, 'dec-pem', decodePem)">
       </div>
 
-      <label data-i18n="label_dec_pem">PEM Certifikát nebo CSR k dekódování</label>
+      <label data-i18n="label_dec_pem">PEM Certificate or CSR to Decode</label>
       <textarea id="dec-pem" placeholder="-----BEGIN CERTIFICATE-----&#10;...&#10;-----END CERTIFICATE-----"></textarea>
-      <button class="btn" onclick="decodePem()" style="margin-top:16px;" data-i18n="btn_decode">🔍 Dekódovat a rozebrat obsah</button>
+      <button class="btn" onclick="decodePem()" style="margin-top:16px;" data-i18n="btn_decode">🔍 Decode and Inspect Content</button>
       
       <div id="dec-result" class="decode-result"></div>
       <div id="dec-syntax" class="pem-viewer" style="display:none;"></div>
@@ -553,27 +553,27 @@
 
     <!-- PANEL: IMPORT & WORKSPACE BACKUP -->
     <div id="panel-import" class="panel">
-      <h3 data-i18n="import_title">Import PEM & Šifrovaná záloha klíčenky</h3>
-      <p class="desc" data-i18n="import_desc">Přidejte existující certifikáty (např. od Let's Encrypt nebo vaší firemní autority) do aplikace, nebo zálohujte celý aktuální stav rozpracovaného projektu.</p>
+      <h3 data-i18n="import_title">PEM Import & Encrypted Keyring Backup</h3>
+      <p class="desc" data-i18n="import_desc">Add existing certificates (e.g. Let's Encrypt or corporate CA) to the application, or back up the current project state.</p>
       
-      <h4 data-i18n="import_h4_1">1. Import externího PEM certifikátu a klíče</h4>
+      <h4 data-i18n="import_h4_1">1. Import External PEM Certificate and Key</h4>
       <div class="drop-zone" onclick="document.getElementById('file-imp').click()" ondragover="handleDragOver(event, this)" ondragleave="handleDragLeave(this)" ondrop="handleDrop(event, this, 'imp-pem')">
         <span style="font-size: 24px;">📥</span>
-        <strong data-i18n="drop_imp">Přetáhněte soubor .pem, .crt nebo .key sem</strong>
-        <span style="font-size: 13px;" data-i18n="drop_imp_hint">(lze vložit i spojený certifikát s privátním klíčem najednou)</span>
+        <strong data-i18n="drop_imp">Drag & drop .pem, .crt, or .key file here</strong>
+        <span style="font-size: 13px;" data-i18n="drop_imp_hint">(combined certificate and private key can also be dropped)</span>
         <input type="file" id="file-imp" accept=".pem,.crt,.key,.txt" onchange="handleFileSelect(event, 'imp-pem')">
       </div>
-      <label data-i18n="label_imp_content">Obsah souboru (PEM blok)</label>
+      <label data-i18n="label_imp_content">File Content (PEM block)</label>
       <textarea id="imp-pem" placeholder="-----BEGIN CERTIFICATE-----&#10;...&#10;-----END CERTIFICATE-----&#10;-----BEGIN PRIVATE KEY-----&#10;...&#10;-----END PRIVATE KEY-----"></textarea>
-      <button class="btn" style="margin-top: 16px;" onclick="importExternalPem()" data-i18n="btn_imp_cert">Importovat certifikát do klíčenky</button>
+      <button class="btn" style="margin-top: 16px;" onclick="importExternalPem()" data-i18n="btn_imp_cert">Import Certificate to Keyring</button>
 
       <div style="border-top: 1px solid var(--border); margin: 35px 0 25px 0;"></div>
 
-      <h4 data-i18n="import_h4_2">2. Šifrovaná záloha celé aplikace (Workspace Backup)</h4>
-      <p class="desc" data-i18n="import_backup_desc">Stáhněte kompletní strom klíčenky do jednoho <code>.json</code> souboru chráněného silným heslem (šifrováno lokálně pomocí AES-256-GCM). Lze následně otevřít na libovolném jiném zařízení. <b>Import ze zálohy nahradí veškerá dosavadní uložená data!</b></p>
+      <h4 data-i18n="import_h4_2">2. Encrypted Workspace Backup</h4>
+      <p class="desc" data-i18n="import_backup_desc">Download complete keyring tree into a single password-protected <code>.json</code> file (encrypted locally using AES-256-GCM). Can subsequently be opened on any other device. <b>Importing from a backup will replace all currently saved data!</b></p>
       <div class="grid-2">
-        <button class="btn btn-secondary" onclick="exportEncryptedWorkspace()" data-i18n="btn_export_ws">🔒 Exportovat zašifrovanou zálohu</button>
-        <button class="btn btn-secondary" onclick="document.getElementById('file-ws').click()" data-i18n="btn_restore_ws">🔓 Obnovit stav ze zálohy</button>
+        <button class="btn btn-secondary" onclick="exportEncryptedWorkspace()" data-i18n="btn_export_ws">🔒 Export Backup</button>
+        <button class="btn btn-secondary" onclick="document.getElementById('file-ws').click()" data-i18n="btn_restore_ws">🔓 Restore Backup</button>
         <input type="file" id="file-ws" accept=".json" style="display:none" onchange="importEncryptedWorkspace(event)">
       </div>
     </div>
@@ -585,10 +585,10 @@
 <div class="modal-backdrop" id="pem-modal" onclick="if(event.target===this) closePemModal()">
   <div class="modal-content">
     <div class="modal-header">
-      <strong id="pem-modal-title" data-i18n="modal_preview_title">Náhled PEM</strong>
+      <strong id="pem-modal-title" data-i18n="modal_preview_title">PEM Preview</strong>
       <div style="display:flex; gap:10px;">
-        <button class="btn-sm special" onclick="copyModalPem()" data-i18n="modal_btn_copy">📋 Kopírovat kód</button>
-        <button class="btn-sm" onclick="closePemModal()" data-i18n="modal_btn_close">✕ Zavřít</button>
+        <button class="btn-sm special" onclick="copyModalPem()" data-i18n="modal_btn_copy">📋 Copy Code</button>
+        <button class="btn-sm" onclick="closePemModal()" data-i18n="modal_btn_close">✕ Close</button>
       </div>
     </div>
     <div class="modal-body">
@@ -844,8 +844,7 @@
       placeholder_optional: "Volitelné",
       field_country: "Země (C)",
       placeholder_country: "Dvoupísmenný ISO kód (CZ)",
-      field_city: "Město (L)",
-      field_city_loc: "Město / Lokalita (L)",
+      field_city: "Město / Lokalita (L)",
       field_algo: "Algoritmus klíče",
       algo_rsa_2048: "RSA 2048 (Rychlé, vysoká kompatibilita)",
       algo_rsa_3072: "RSA 3072 (Vyšší bezpečnost)",
@@ -1102,8 +1101,7 @@
       placeholder_optional: "Optional",
       field_country: "Country (C)",
       placeholder_country: "Two-letter ISO code",
-      field_city: "City (L)",
-      field_city_loc: "City / Locality (L)",
+      field_city: "City / Region (L)",
       field_algo: "Key Algorithm",
       algo_rsa_2048: "RSA 2048 (Fast, legacy standard, universal compatibility)",
       algo_rsa_3072: "RSA 3072 (Higher security)",
