@@ -4,21 +4,67 @@ mermaid.initialize({
   startOnLoad: false,
   theme: 'dark',
   securityLevel: 'loose',
-  flowchart: { curve: 'basis' }
+  flowchart: { curve: 'linear', htmlLabels: true }
 });
+
+const UI_ICONS = {
+  success: `<svg class="toast-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>`,
+  error: `<svg class="toast-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><line x1="12" x2="12" y1="8" y2="12"/><line x1="12" x2="12.01" y1="16" y2="16"/></svg>`,
+  info: `<svg class="toast-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg>`,
+  eye: `<svg class="icon-14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/></svg>`,
+  download: `<svg class="icon-14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" x2="12" y1="15" y2="3"/></svg>`,
+  key: `<svg class="icon-14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="7.5" cy="15.5" r="5.5"/><path d="m21 2-9.6 9.6"/><path d="m15.5 7.5 3 3L22 7l-3-3"/></svg>`,
+  chain: `<svg class="icon-14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>`,
+  archive: `<svg class="icon-14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect width="20" height="5" x="2" y="3" rx="1"/><path d="M4 8v11a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8"/><path d="M10 12h4"/></svg>`,
+  fileWarning: `<svg class="icon-14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"/><path d="M12 9v4"/><path d="M12 17h.01"/></svg>`,
+  ban: `<svg class="icon-14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="m4.9 4.9 14.2 14.2"/></svg>`,
+  emptyKeyring: `<svg class="icon-20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>`
+};
+
+function toggleMobileMenu() {
+  const sidebar = document.getElementById('app-sidebar');
+  const backdrop = document.getElementById('sidebar-backdrop');
+  const toggleBtn = document.getElementById('mobile-menu-toggle');
+  const openIcon = document.getElementById('icon-menu-open');
+  const closeIcon = document.getElementById('icon-menu-close');
+  if (!sidebar) return;
+
+  const isOpen = sidebar.classList.toggle('mobile-open');
+  if (backdrop) backdrop.classList.toggle('open', isOpen);
+  if (toggleBtn) toggleBtn.setAttribute('aria-expanded', String(isOpen));
+  if (openIcon && closeIcon) {
+    openIcon.style.display = isOpen ? 'none' : 'block';
+    closeIcon.style.display = isOpen ? 'block' : 'none';
+  }
+}
+
+function closeMobileMenu() {
+  const sidebar = document.getElementById('app-sidebar');
+  const backdrop = document.getElementById('sidebar-backdrop');
+  const toggleBtn = document.getElementById('mobile-menu-toggle');
+  const openIcon = document.getElementById('icon-menu-open');
+  const closeIcon = document.getElementById('icon-menu-close');
+  if (sidebar) sidebar.classList.remove('mobile-open');
+  if (backdrop) backdrop.classList.remove('open');
+  if (toggleBtn) toggleBtn.setAttribute('aria-expanded', 'false');
+  if (openIcon && closeIcon) {
+    openIcon.style.display = 'block';
+    closeIcon.style.display = 'none';
+  }
+}
 
 function showToast(message, type = 'info') {
   const container = document.getElementById('toast-container');
   const toast = document.createElement('div');
   toast.className = `toast ${type}`;
-  const icon = type === 'success' ? '✓' : (type === 'error' ? '⚠️' : 'ℹ️');
-  toast.innerHTML = `<span>${icon}</span><div>${message}</div>`;
+  const iconSvg = type === 'success' ? UI_ICONS.success : (type === 'error' ? UI_ICONS.error : UI_ICONS.info);
+  toast.innerHTML = `${iconSvg}<div>${message}</div>`;
   container.appendChild(toast);
   setTimeout(() => {
     toast.style.opacity = '0';
-    toast.style.transform = 'translateX(20px)';
-    toast.style.transition = '0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275)';
-    setTimeout(() => toast.remove(), 300);
+    toast.style.transform = 'translateY(6px)';
+    toast.style.transition = '0.2s ease';
+    setTimeout(() => toast.remove(), 200);
   }, 3500);
 }
 
@@ -100,9 +146,10 @@ function nav(panelId, btnEl) {
   }
   if (btnEl) {
     btnEl.classList.add('active');
-    btnEl.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
   }
-  document.getElementById('panel-' + panelId).classList.add('active');
+  const targetPanel = document.getElementById('panel-' + panelId);
+  if (targetPanel) targetPanel.classList.add('active');
+  closeMobileMenu();
   if (panelId === 'keyring') renderKeyring();
   if (panelId === 'graph') renderGraph();
 }
@@ -126,21 +173,25 @@ function updateCaSelects() {
 async function renderGraph() {
   const box = document.getElementById('mermaid-box');
   if (store.length === 0) {
-    box.innerHTML = `<p style="color: var(--muted); font-style: italic;">${t('graph_empty')}</p>`;
+    box.innerHTML = `
+      <div class="keyring-empty-state" style="border:none; background:transparent;">
+        ${UI_ICONS.emptyKeyring}
+        <span>${t('graph_empty')}</span>
+      </div>`;
     return;
   }
 
   let def = 'graph TD\n';
-  def += '  classDef root fill:#450a0a,stroke:#ef4444,stroke-width:2px,color:#fca5a5;\n';
-  def += '  classDef inter fill:#451a03,stroke:#f59e0b,stroke-width:2px,color:#fcd34d;\n';
-  def += '  classDef cross fill:#2e1065,stroke:#8b5cf6,stroke-width:2px,color:#ddd6fe;\n';
-  def += '  classDef leaf fill:#064e3b,stroke:#10b981,stroke-width:2px,color:#86efac;\n';
-  def += '  classDef revoked fill:#1f2937,stroke:#ef4444,stroke-dasharray: 5 5,color:#9ca3af;\n';
+  def += '  classDef root fill:#18181b,stroke:#ef4444,stroke-width:1.5px,color:#fafafa;\n';
+  def += '  classDef inter fill:#18181b,stroke:#f59e0b,stroke-width:1.5px,color:#fafafa;\n';
+  def += '  classDef cross fill:#18181b,stroke:#3b82f6,stroke-width:1.5px,color:#fafafa;\n';
+  def += '  classDef leaf fill:#18181b,stroke:#10b981,stroke-width:1.5px,color:#fafafa;\n';
+  def += '  classDef revoked fill:#09090b,stroke:#52525b,stroke-dasharray: 4 4,color:#71717a;\n';
 
   store.forEach(item => {
     const cleanName = item.name.replace(/["[\]()]/g, '');
     const statusTag = item.revoked ? ' [REVOKED]' : '';
-    const nodeLabel = `"${cleanName}${statusTag}<br/><small>${item.type.toUpperCase()} | ${item.algo || 'RSA'}</small>"`;
+    const nodeLabel = `"${cleanName}${statusTag}<br/><small>${item.type.toUpperCase()} · ${item.algo || 'RSA'}</small>"`;
     const cls = item.revoked ? 'revoked' : item.type;
     def += `  N${item.id}[${nodeLabel}]:::${cls}\n`;
   });
@@ -165,7 +216,7 @@ async function renderGraph() {
     const { svg } = await mermaid.render('pki-mermaid-svg-' + Date.now(), def);
     box.innerHTML = svg;
   } catch (err) {
-    box.innerHTML = `<p style="color:var(--danger)">${t('graph_render_error')}${err.message}</p>`;
+    box.innerHTML = `<p style="color:var(--danger)">${t('graph_render_error')}${escapeHtml(err.message)}</p>`;
   }
 }
 
@@ -261,10 +312,33 @@ function downloadChain(id) {
   showToast(t('toast_chain_downloaded'), 'success');
 }
 
+function updateKeyringStats() {
+  const totalEl = document.getElementById('stat-val-total');
+  const caEl = document.getElementById('stat-val-ca');
+  const leafEl = document.getElementById('stat-val-leaf');
+  const revEl = document.getElementById('stat-val-revoked');
+  if (!totalEl) return;
+
+  const total = store.length;
+  const activeCa = store.filter(i => (i.type === 'root' || i.type === 'inter' || i.type === 'cross') && !i.revoked).length;
+  const activeLeaf = store.filter(i => i.type === 'leaf' && !i.revoked).length;
+  const revokedCount = store.filter(i => i.revoked).length;
+
+  totalEl.textContent = String(total);
+  caEl.textContent = String(activeCa);
+  leafEl.textContent = String(activeLeaf);
+  revEl.textContent = String(revokedCount);
+}
+
 function renderKeyring() {
+  updateKeyringStats();
   const list = document.getElementById('keyring-list');
   if (store.length === 0) {
-    list.innerHTML = `<p style="color: var(--muted); font-style: italic;">${t('keyring_empty')}</p>`;
+    list.innerHTML = `
+      <div class="keyring-empty-state">
+        ${UI_ICONS.emptyKeyring}
+        <span>${t('keyring_empty')}</span>
+      </div>`;
     return;
   }
 
@@ -273,10 +347,10 @@ function renderKeyring() {
     let badge = '';
     if (item.type === 'root') badge = '<span class="badge root">ROOT CA</span>';
     else if (item.type === 'inter') badge = '<span class="badge inter">SUB CA</span>';
-    else if (item.type === 'cross') badge = '<span class="badge inter" style="background:#4c1d95; color:#ddd6fe;">CROSS CA</span>';
+    else if (item.type === 'cross') badge = '<span class="badge cross">CROSS CA</span>';
     else badge = '<span class="badge leaf">LEAF</span>';
 
-    const algoBadge = `<span class="badge algo">${item.algo || 'RSA'}</span>`;
+    const algoBadge = `<span class="badge algo">${escapeHtml(item.algo || 'RSA')}</span>`;
     const revBadge = item.revoked ? `<span class="badge revoked">${t('badge_revoked')}</span>` : '';
     const issuerName = item.issuerId === item.id ? 'Self-Signed' : (store.find(i => i.id === item.issuerId)?.name || t('issuer_external'));
     const isCA = item.type === 'root' || item.type === 'inter' || item.type === 'cross';
@@ -284,20 +358,25 @@ function renderKeyring() {
     list.innerHTML += `
       <div class="keyring-item type-${item.type === 'cross' ? 'inter' : item.type} ${item.revoked ? 'revoked' : ''}">
         <div class="keyring-info">
-          <strong>${badge}${algoBadge}${revBadge} ${escapeHtml(item.name)}</strong>
-          <span>${t('keyring_issuer')} ${escapeHtml(issuerName)}<br>${t('keyring_serial')} <span style="font-family: monospace; font-size: 11px; color: #94a3b8;">${getItemSerialDisplay(item)}</span></span>
+          <div class="keyring-title-row">
+            ${badge}${algoBadge}${revBadge}
+            <span class="keyring-name">${escapeHtml(item.name)}</span>
+          </div>
+          <div class="keyring-meta">
+            <span class="keyring-meta-item">${t('keyring_issuer')} <strong style="color: var(--text-secondary); font-weight: 500;">${escapeHtml(issuerName)}</strong></span>
+            <span class="keyring-meta-item">${t('keyring_serial')} <code class="keyring-serial">${getItemSerialDisplay(item)}</code></span>
+          </div>
         </div>
         <div class="action-group">
-          <button class="btn-sm" onclick="viewPemModal(${item.id}, 'cert')" title="${t('keyring_btn_view_title')}">${t('keyring_btn_view')}</button>
-          <button class="btn-sm" onclick="downloadItemFile(${item.id}, 'crt')">.CRT</button>
-          ${item.keyPem ? `<button class="btn-sm" onclick="downloadItemFile(${item.id}, 'key')">.KEY</button>` : ''}
-          ${item.type !== 'root' ? `<button class="btn-sm" onclick="downloadChain(${item.id})">CHAIN</button>` : ''}
-          ${item.keyObj && !item.keyObj.isDummy && item.algo !== 'ED25519' && !item.algo.startsWith('ECDSA') ? `<button class="btn-sm special" onclick="downloadP12(${item.id})">📦 .P12</button>` : ''}
-          ${isCA && item.keyPem ? `<button class="btn-sm warn" onclick="downloadCRL(${item.id})" title="${t('keyring_btn_crl_title')}">📜 CRL</button>` : ''}
-          ${!item.revoked ? `<button class="btn-sm rev" onclick="revokeCert(${item.id})" title="${t('keyring_btn_revoke_title')}">${t('keyring_btn_revoke')}</button>` : ''}
+          <button class="btn-sm" onclick="viewPemModal(${item.id}, 'cert')" title="${t('keyring_btn_view_title')}">${UI_ICONS.eye}<span>${t('keyring_btn_view')}</span></button>
+          <button class="btn-sm" onclick="downloadItemFile(${item.id}, 'crt')">${UI_ICONS.download}<span>.CRT</span></button>
+          ${item.keyPem ? `<button class="btn-sm" onclick="downloadItemFile(${item.id}, 'key')">${UI_ICONS.key}<span>.KEY</span></button>` : ''}
+          ${item.type !== 'root' ? `<button class="btn-sm" onclick="downloadChain(${item.id})">${UI_ICONS.chain}<span>CHAIN</span></button>` : ''}
+          ${item.keyObj && !item.keyObj.isDummy && item.algo !== 'ED25519' && !item.algo.startsWith('ECDSA') ? `<button class="btn-sm special" onclick="downloadP12(${item.id})">${UI_ICONS.archive}<span>.P12</span></button>` : ''}
+          ${isCA && item.keyPem ? `<button class="btn-sm warn" onclick="downloadCRL(${item.id})" title="${t('keyring_btn_crl_title')}">${UI_ICONS.fileWarning}<span>CRL</span></button>` : ''}
+          ${!item.revoked ? `<button class="btn-sm rev" onclick="revokeCert(${item.id})" title="${t('keyring_btn_revoke_title')}">${UI_ICONS.ban}<span>${t('keyring_btn_revoke')}</span></button>` : ''}
         </div>
       </div>
     `;
   });
 }
-

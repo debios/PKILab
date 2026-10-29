@@ -6,6 +6,8 @@ const DB_SCHEMA_VERSION = '3';
 function updateAppVersionBadge() {
   const badge = document.getElementById('app-version-badge');
   if (badge) badge.textContent = `v${APP_VERSION}`;
+  const mobileBadge = document.getElementById('mobile-version-badge');
+  if (mobileBadge) mobileBadge.textContent = `v${APP_VERSION}`;
 }
 updateAppVersionBadge();
 
@@ -16,7 +18,35 @@ let idCounter = 1;
 function reconstructItem(item) {
   let certObj = null;
   let keyObj = null;
-  try { certObj = forge.pki.certificateFromPem(item.certPem); } catch (e) { console.warn('Failed parsing cert', e); }
+  
+  try { 
+    certObj = forge.pki.certificateFromPem(item.certPem); 
+  } catch (e) { 
+    console.warn('Fallback: Záchranné parsování certifikátu (nepodporovaný algoritmus ECC/Ed25519)', e);
+    // Pokud node-forge selže, vytvoříme manuálně strukturovaný mock objekt
+    try {
+      const msg = forge.pem.decode(item.certPem)[0];
+      const asn = forge.asn1.fromDer(msg.body);
+      certObj = forge.pki.createCertificate();
+      
+      const tbs = asn.value[0]; // TBSCertificate sekce
+      let snIdx = 0; 
+      // X509v3 certifikáty obsahují volitelnou verzi posouvající indexy (tagClass CONTEXT_SPECIFIC)
+      if (tbs.value[0] && tbs.value[0].tagClass === forge.asn1.Class.CONTEXT_SPECIFIC) {
+        snIdx = 1;
+      }
+      
+      // Manuální vytažení nezbytných X.509 dat pro správné fungování UI a vydávání
+      certObj.serialNumber = forge.util.bytesToHex(tbs.value[snIdx].value);
+      // Obaleno do pole { attributes: ... } aby prošlo volání .subject.attributes
+      certObj.issuer = { attributes: forge.pki.RDNAttributesAsArray(tbs.value[snIdx + 2]) };
+      certObj.subject = { attributes: forge.pki.RDNAttributesAsArray(tbs.value[snIdx + 4]) };
+      certObj.publicKey = { rawAsn1: tbs.value[snIdx + 5], isDummy: true };
+    } catch (fallbackErr) {
+      console.error('Fatální chyba při manuálním parsování PEM:', fallbackErr);
+    }
+  }
+
   if (item.keyPem) {
     try {
       if (item.algo === 'ED25519' && item.edSeedHex) {
@@ -79,6 +109,7 @@ function saveItem(item) {
   store.push(item);
   syncStore();
   updateCaSelects();
+  if (typeof updateKeyringStats === 'function') updateKeyringStats();
 }
 
 function initStorage() {

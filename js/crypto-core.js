@@ -1107,10 +1107,10 @@ function decodePem() {
 
       const sub = getAttr(csr.subject.attributes) || t('dec_unknown_subject');
       resultBox.innerHTML = `
-        <div class="decode-row"><div class="decode-label">${t('dec_doc_type')}</div><div class="decode-val">${t('dec_csr_doc_type')}${escapeHtml(algoName)}</div></div>
-        <div class="decode-row"><div class="decode-label">${t('dec_csr_subject')}</div><div class="decode-val">${escapeHtml(sub)}</div></div>
-        <div class="decode-row"><div class="decode-label">${t('dec_san_requested')}</div><div class="decode-val">${escapeHtml(sans)}</div></div>
-        <div class="decode-row"><div class="decode-label">${t('dec_sig_integrity')}</div><div class="decode-val">${validSig}</div></div>
+        <div class="decode-row"><div class="decode-label">${t('dec_doc_type')}</div><div class="decode-val">${t('dec_csr_doc_type')}<span class="badge algo">${escapeHtml(algoName)}</span></div></div>
+        <div class="decode-row"><div class="decode-label">${t('dec_csr_subject')}</div><div class="decode-val font-mono" style="font-size: 12px;">${escapeHtml(sub)}</div></div>
+        <div class="decode-row"><div class="decode-label">${t('dec_san_requested')}</div><div class="decode-val font-mono" style="font-size: 12px;">${escapeHtml(sans)}</div></div>
+        <div class="decode-row"><div class="decode-label">${t('dec_sig_integrity')}</div><div class="decode-val">${escapeHtml(validSig)}</div></div>
       `;
     } else {
       const cert = forge.pki.certificateFromPem(pem);
@@ -1131,13 +1131,13 @@ function decodePem() {
       // Sériové číslo: primárně z DER (spolehlivé i pro ECC), fallback na forge parser
       const decSn = extractSerialFromPem(pem) || cert.serialNumber || '';
       resultBox.innerHTML = `
-        <div class="decode-row"><div class="decode-label">${t('dec_cert_subject')}</div><div class="decode-val">${escapeHtml(sub)}</div></div>
-        <div class="decode-row"><div class="decode-label">${t('dec_cert_issuer')}</div><div class="decode-val">${escapeHtml(iss)}</div></div>
-        <div class="decode-row"><div class="decode-label">${t('dec_pubkey_algo')}</div><div class="decode-val">${escapeHtml(algoName)}</div></div>
-        <div class="decode-row"><div class="decode-label">${t('dec_validity_range')}</div><div class="decode-val">${cert.validity.notBefore.toLocaleString()} — ${cert.validity.notAfter.toLocaleString()}</div></div>
-        <div class="decode-row"><div class="decode-label">${t('dec_san')}</div><div class="decode-val">${escapeHtml(sans)}</div></div>
-        <div class="decode-row"><div class="decode-label">${t('dec_serial')}</div><div class="decode-val" style="font-family: monospace; font-size: 13px;">${formatSerialHex(decSn)}</div></div>
-        <div class="decode-row"><div class="decode-label">${t('dec_is_ca')}</div><div class="decode-val">${isCA}</div></div>
+        <div class="decode-row"><div class="decode-label">${t('dec_cert_subject')}</div><div class="decode-val font-mono" style="font-size: 12px;">${escapeHtml(sub)}</div></div>
+        <div class="decode-row"><div class="decode-label">${t('dec_cert_issuer')}</div><div class="decode-val font-mono" style="font-size: 12px;">${escapeHtml(iss)}</div></div>
+        <div class="decode-row"><div class="decode-label">${t('dec_pubkey_algo')}</div><div class="decode-val"><span class="badge algo">${escapeHtml(algoName)}</span></div></div>
+        <div class="decode-row"><div class="decode-label">${t('dec_validity_range')}</div><div class="decode-val font-mono" style="font-size: 12px;">${cert.validity.notBefore.toLocaleString()} — ${cert.validity.notAfter.toLocaleString()}</div></div>
+        <div class="decode-row"><div class="decode-label">${t('dec_san')}</div><div class="decode-val font-mono" style="font-size: 12px;">${escapeHtml(sans)}</div></div>
+        <div class="decode-row"><div class="decode-label">${t('dec_serial')}</div><div class="decode-val"><code class="keyring-serial">${formatSerialHex(decSn)}</code></div></div>
+        <div class="decode-row"><div class="decode-label">${t('dec_is_ca')}</div><div class="decode-val">${escapeHtml(isCA)}</div></div>
       `;
     }
 
