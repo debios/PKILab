@@ -1,105 +1,312 @@
 <!DOCTYPE html>
-<html lang="cs">
+<html lang="cs" class="dark">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>PKI Lab 2.3 | Advanced X.509 Studio</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PKI Lab 2.4 | Enterprise X.509 Studio</title>
 
-  <!-- Fonty (Montserrat) -->
+  <!-- Fonts: Inter & JetBrains Mono -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
   <link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&amp;display=swap" rel="stylesheet">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            base: '#09090b',
+            surface: '#111113',
+            surface2: '#18181b',
+            border: '#27272a',
+            accent: '#10b981',
+            accentHover: '#059669'
+          },
+          fontFamily: {
+            sans: ['Montserrat', '-apple-system', 'BlinkMacSystemFont', 'sans-serif'],
+            mono: ['JetBrains Mono', 'ui-monospace', 'SFMono-Regular', 'monospace']
+          }
+        }
+      }
+    };
+  </script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/forge/1.3.1/forge.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
   <link rel="stylesheet" href="css/styles.css">
 </head>
-<body>
+<body class="bg-[#09090b] text-[#fafafa] font-sans antialiased selection:bg-[#10b981]/20 selection:text-[#10b981]">
+
+<!-- MOBILE TOP BAR -->
+<header class="mobile-topbar">
+  <div class="mobile-brand">
+    <svg class="icon-brand" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+      <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+      <path d="m9 12 2 2 4-4"/>
+    </svg>
+    <span class="brand-name">PKI Lab</span>
+    <span class="version-tag" id="mobile-version-badge">v2.4</span>
+  </div>
+  <div class="mobile-actions">
+    <button type="button" class="mobile-menu-btn" id="mobile-menu-toggle" onclick="toggleMobileMenu()" aria-label="Toggle navigation menu" aria-expanded="false">
+      <svg id="icon-menu-open" class="icon-18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+        <line x1="4" x2="20" y1="6" y2="6"/>
+        <line x1="4" x2="20" y1="12" y2="12"/>
+        <line x1="4" x2="20" y1="18" y2="18"/>
+      </svg>
+      <svg id="icon-menu-close" class="icon-18" style="display:none;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M18 6 6 18"/>
+        <path d="m6 6 12 12"/>
+      </svg>
+    </button>
+  </div>
+</header>
+
+<!-- MOBILE DRAWER BACKDROP -->
+<div id="sidebar-backdrop" class="sidebar-backdrop" onclick="closeMobileMenu()"></div>
 
 <div class="container">
   <!-- SIDEBAR NAVIGATION -->
-  <div class="sidebar">
+  <aside class="sidebar" id="app-sidebar" aria-label="Primary Navigation">
     <div class="sidebar-header">
-      <h2>PKI Lab <span id="app-version-badge">v???</span></h2>
+      <div class="brand-group">
+        <div class="brand-icon-box">
+          <svg class="icon-16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+            <path d="m9 12 2 2 4-4"/>
+          </svg>
+        </div>
+        <h2>PKI Lab <span id="app-version-badge">v2.4</span></h2>
+      </div>
       <button class="lang-switch-btn" id="lang-btn" onclick="toggleLanguage()" title="Přepnout jazyk / Switch language" aria-label="Switch language">
         <span id="lang-opt-cs" class="lang-opt active">CZ</span><span class="lang-sep">/</span><span id="lang-opt-en" class="lang-opt">EN</span>
       </button>
     </div>
-    <button class="nav-btn active" onclick="nav('keyring', this)" data-i18n="nav_keyring">🗄️ Key Manager</button>
-    <button class="nav-btn" onclick="nav('graph', this)" data-i18n="nav_graph">🕸️ Trust Graph</button>
+
+    <div class="nav-section">
+      <div class="nav-section-label" data-i18n="nav_sec_overview">Overview</div>
+      <button class="nav-btn active" onclick="nav('keyring', this)">
+        <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <circle cx="7.5" cy="15.5" r="5.5"/>
+          <path d="m21 2-9.6 9.6"/>
+          <path d="m15.5 7.5 3 3L22 7l-3-3"/>
+        </svg>
+        <span data-i18n="nav_keyring">Key Manager</span>
+      </button>
+      <button class="nav-btn" onclick="nav('graph', this)">
+        <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <rect x="16" y="16" width="6" height="6" rx="1"/>
+          <rect x="2" y="16" width="6" height="6" rx="1"/>
+          <rect x="9" y="2" width="6" height="6" rx="1"/>
+          <path d="M5 16v-3a1 1 0 0 1 1-1h12a1 1 0 0 1 1 1v3"/>
+          <path d="M12 12V8"/>
+        </svg>
+        <span data-i18n="nav_graph">Trust Graph</span>
+      </button>
+    </div>
+
     <div class="nav-divider"></div>
-    <button class="nav-btn" onclick="nav('root', this)" data-i18n="nav_root">👑 Root CA</button>
-    <button class="nav-btn" onclick="nav('inter', this)" data-i18n="nav_inter">🔗 Intermediate CA</button>
-    <button class="nav-btn" onclick="nav('leaf', this)" data-i18n="nav_leaf">🍃 Leaf Certificate</button>
-    <button class="nav-btn" onclick="nav('csr-gen', this)" data-i18n="nav_csr_gen">🛠️ Create CSR</button>
-    <button class="nav-btn" onclick="nav('csr', this)" data-i18n="nav_csr">📝 Sign CSR</button>
-    <button class="nav-btn" onclick="nav('cross', this)" data-i18n="nav_cross">🔀 Cross-Signing</button>
+
+    <div class="nav-section">
+      <div class="nav-section-label" data-i18n="nav_sec_pki">Certificate Issuance</div>
+      <button class="nav-btn" onclick="nav('root', this)">
+        <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+        </svg>
+        <span data-i18n="nav_root">Root CA</span>
+      </button>
+      <button class="nav-btn" onclick="nav('inter', this)">
+        <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <line x1="6" x2="6" y1="3" y2="15"/>
+          <circle cx="18" cy="6" r="3"/>
+          <circle cx="6" cy="18" r="3"/>
+          <path d="M18 9a9 9 0 0 1-9 9"/>
+        </svg>
+        <span data-i18n="nav_inter">Intermediate CA</span>
+      </button>
+      <button class="nav-btn" onclick="nav('leaf', this)">
+        <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"/>
+          <path d="M14 2v4a2 2 0 0 0 2 2h4"/>
+          <path d="m9 15 2 2 4-4"/>
+        </svg>
+        <span data-i18n="nav_leaf">Leaf Certificate</span>
+      </button>
+      <button class="nav-btn" onclick="nav('csr-gen', this)">
+        <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+          <polyline points="14 2 14 8 20 8"/>
+          <line x1="12" x2="12" y1="18" y2="12"/>
+          <line x1="9" x2="15" y1="15" y2="15"/>
+        </svg>
+        <span data-i18n="nav_csr_gen">Create CSR</span>
+      </button>
+      <button class="nav-btn" onclick="nav('csr', this)">
+        <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M12 20h9"/>
+          <path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z"/>
+        </svg>
+        <span data-i18n="nav_csr">Sign CSR</span>
+      </button>
+      <button class="nav-btn" onclick="nav('cross', this)">
+        <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M16 3h5v5"/>
+          <path d="M8 3H3v5"/>
+          <path d="M12 22v-8.3a4 4 0 0 0-1.172-2.872L3 3"/>
+          <path d="m15 9 6-6"/>
+        </svg>
+        <span data-i18n="nav_cross">Cross-Signing</span>
+      </button>
+    </div>
+
     <div class="nav-divider"></div>
-    <button class="nav-btn" onclick="nav('decoder', this)" data-i18n="nav_decoder">🔍 Decoder</button>
-    <button class="nav-btn" onclick="nav('import', this)" data-i18n="nav_import">📥 Import / Backup</button>
-  </div>
+
+    <div class="nav-section">
+      <div class="nav-section-label" data-i18n="nav_sec_tools">Tools &amp; Operations</div>
+      <button class="nav-btn" onclick="nav('decoder', this)">
+        <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <circle cx="11" cy="11" r="8"/>
+          <path d="m21 21-4.3-4.3"/>
+        </svg>
+        <span data-i18n="nav_decoder">Decoder</span>
+      </button>
+      <button class="nav-btn" onclick="nav('import', this)">
+        <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+          <polyline points="7 10 12 15 17 10"/>
+          <line x1="12" x2="12" y1="15" y2="3"/>
+        </svg>
+        <span data-i18n="nav_import">Import / Backup</span>
+      </button>
+    </div>
+  </aside>
 
   <!-- MAIN PANELS -->
-  <div class="main">
-    
+  <main class="main">
+
     <!-- PANEL: KEYRING -->
-    <div id="panel-keyring" class="panel active">
-      <h3 data-i18n="keyring_title">Virtual Keyring</h3>
-      <p class="desc" data-i18n="keyring_desc">Main overview of generated and imported authorities, certificates, and keys.</p>
-      
-      <div class="alert-box" id="ls-alert" style="display: none;">
-        <span>⚠️</span>
+    <section id="panel-keyring" class="panel active">
+      <div class="panel-header">
         <div>
-          <strong data-i18n="keyring_alert_strong">Local storage is active</strong><br>
-          <span data-i18n="keyring_alert_desc">Private keys are stored in plaintext directly in this browser's memory. For secure transfer to another device, use <em>Encrypted Backup Export</em>.</span>
+          <h3 data-i18n="keyring_title">Virtual Keyring</h3>
+          <p class="desc" data-i18n="keyring_desc">Main overview of generated and imported authorities, certificates, and keys.</p>
+        </div>
+      </div>
+
+      <!-- KEYRING METRICS SUMMARY -->
+      <div class="stats-grid" id="keyring-stats">
+        <div class="stat-card">
+          <span class="stat-label" data-i18n="stat_total">Total Items</span>
+          <strong class="stat-value" id="stat-val-total">0</strong>
+        </div>
+        <div class="stat-card">
+          <span class="stat-label" data-i18n="stat_ca">Active Authorities (CA)</span>
+          <strong class="stat-value" id="stat-val-ca">0</strong>
+        </div>
+        <div class="stat-card">
+          <span class="stat-label" data-i18n="stat_leaf">End-Entity Leafs</span>
+          <strong class="stat-value" id="stat-val-leaf">0</strong>
+        </div>
+        <div class="stat-card">
+          <span class="stat-label" data-i18n="stat_revoked">Revoked (CRL)</span>
+          <strong class="stat-value" id="stat-val-revoked">0</strong>
+        </div>
+      </div>
+
+      <div class="alert-box" id="ls-alert" style="display: none;">
+        <svg class="alert-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/>
+          <path d="M12 9v4"/>
+          <path d="M12 17h.01"/>
+        </svg>
+        <div>
+          <strong data-i18n="keyring_alert_strong">Local storage is active</strong>
+          <p data-i18n="keyring_alert_desc">Private keys are stored in plaintext directly in this browser's memory. For secure transfer to another device, use <em>Encrypted Backup Export</em>.</p>
         </div>
       </div>
 
       <div class="toolbar">
-        <label class="checkbox-label" style="font-weight: bold;">
-          <input type="checkbox" id="toggle-ls" onchange="toggleStorage()"> 
-          <span data-i18n="keyring_toggle_ls">💾 Store keyring permanently in browser (LocalStorage)</span>
+        <label class="checkbox-label toolbar-toggle">
+          <input type="checkbox" id="toggle-ls" onchange="toggleStorage()">
+          <svg class="icon-16 text-muted" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <ellipse cx="12" cy="5" rx="9" ry="3"/>
+            <path d="M3 5V19A9 3 0 0 0 21 19V5"/>
+            <path d="M3 12A9 3 0 0 0 21 12"/>
+          </svg>
+          <span data-i18n="keyring_toggle_ls">Store keyring permanently in browser (LocalStorage)</span>
         </label>
-        <div style="display:flex; gap:8px;">
-          <button class="btn-sm special" onclick="exportEncryptedWorkspace()" data-i18n="keyring_btn_export">🔒 Export Backup (.json)</button>
-          <button class="btn-sm btn-danger" onclick="clearStore()" data-i18n="keyring_btn_clear">🗑️ Clear All</button>
+        <div class="toolbar-actions">
+          <button class="btn-sm special" onclick="exportEncryptedWorkspace()">
+            <svg class="icon-14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <rect width="18" height="11" x="3" y="11" rx="2" ry="2"/>
+              <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+            </svg>
+            <span data-i18n="keyring_btn_export">Export Backup (.json)</span>
+          </button>
+          <button class="btn-sm btn-danger" onclick="clearStore()">
+            <svg class="icon-14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path d="M3 6h18"/>
+              <path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/>
+              <path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/>
+            </svg>
+            <span data-i18n="keyring_btn_clear">Clear All</span>
+          </button>
         </div>
       </div>
 
-      <div id="keyring-list"></div>
-    </div>
+      <div id="keyring-list" class="keyring-list"></div>
+    </section>
 
     <!-- PANEL: CHAIN OF TRUST VISUALIZER -->
-    <div id="panel-graph" class="panel">
-      <h3 data-i18n="graph_title">Trust Graph (Chain of Trust)</h3>
-      <p class="desc" data-i18n="graph_desc">Visual representation of your certificate hierarchy. Cross-signatures are displayed with a dashed line towards the target authority.</p>
-      <div style="margin-bottom: 16px; display: flex; gap: 10px; flex-wrap: wrap; font-size: 13px;">
+    <section id="panel-graph" class="panel">
+      <div class="panel-header">
+        <div>
+          <h3 data-i18n="graph_title">Trust Graph (Chain of Trust)</h3>
+          <p class="desc" data-i18n="graph_desc">Visual representation of your certificate hierarchy. Cross-signatures are displayed with a dashed line towards the target authority.</p>
+        </div>
+      </div>
+      <div class="graph-legend">
         <span class="badge root">Root CA</span>
         <span class="badge inter">Intermediate / Cross CA</span>
         <span class="badge leaf" data-i18n="graph_badge_leaf">End-Entity (Leaf)</span>
         <span class="badge revoked" data-i18n="graph_badge_revoked">Revoked</span>
       </div>
       <div class="graph-box" id="mermaid-box"></div>
-    </div>
+    </section>
 
     <!-- PANEL: ROOT CA -->
-    <div id="panel-root" class="panel">
-      <h3 data-i18n="root_title">Root CA Generator</h3>
-      <p class="desc" data-i18n="root_desc">Top-level root authority (Self-Signed). Required to sign subordinate certificates.</p>
+    <section id="panel-root" class="panel">
+      <div class="panel-header">
+        <div>
+          <h3 data-i18n="root_title">Root CA Generator</h3>
+          <p class="desc" data-i18n="root_desc">Top-level root authority (Self-Signed). Required to sign subordinate certificates.</p>
+        </div>
+      </div>
       <div class="grid-2">
         <div class="full-width">
-          <label data-i18n="field_cn">Common Name (CN)</label>
-          <input type="text" id="r-cn">
+          <label for="r-cn" data-i18n="field_cn">Common Name (CN)</label>
+          <input type="text" id="r-cn" placeholder="e.g. Example Global Root CA G1">
           <span class="help-text" data-i18n="root_cn_help">Main authority name displayed in the user's browser.</span>
         </div>
-        <div><label data-i18n="field_org">Organization (O)</label><input type="text" id="r-o"></div>
         <div>
-          <label data-i18n="field_ou">Organizational Unit (OU)</label>
+          <label for="r-o" data-i18n="field_org">Organization (O)</label>
+          <input type="text" id="r-o">
+        </div>
+        <div>
+          <label for="r-ou" data-i18n="field_ou">Organizational Unit (OU)</label>
           <input type="text" id="r-ou" value="" placeholder="not used" data-i18n-placeholder="placeholder_not_used">
         </div>
-        <div><label data-i18n="field_country">Country (C)</label><input type="text" id="r-c"></div>
-        <div><label data-i18n="field_city">City / Region (L)</label><input type="text" id="r-l"></div>
         <div>
-          <label data-i18n="field_algo">Key Algorithm</label>
+          <label for="r-c" data-i18n="field_country">Country (C)</label>
+          <input type="text" id="r-c" maxlength="2">
+        </div>
+        <div>
+          <label for="r-l" data-i18n="field_city">City / Region (L)</label>
+          <input type="text" id="r-l">
+        </div>
+        <div>
+          <label for="r-algo" data-i18n="field_algo">Key Algorithm</label>
           <select id="r-algo">
             <option value="RSA-2048" data-i18n="algo_rsa_2048">RSA 2048 (Fast, legacy standard, universal compatibility)</option>
             <option value="RSA-3072" data-i18n="algo_rsa_3072">RSA 3072 (Higher security)</option>
@@ -111,30 +318,41 @@
           <span class="help-text" data-i18n="root_algo_help">For a new Root CA, RSA 4096, ECDSA P-384 or Ed25519 is recommended today.</span>
         </div>
         <div>
-          <label data-i18n="field_validity_years">Validity (years)</label>
+          <label for="r-years" data-i18n="field_validity_years">Validity (years)</label>
           <input type="number" id="r-years" value="20">
           <span class="help-text" data-i18n="root_validity_help">Root authority is usually issued for a very long period (10-20 years).</span>
         </div>
       </div>
-      <button class="btn" id="btn-gen-root" onclick="generateRoot()" data-i18n="btn_gen_root">Generate Root CA</button>
-    </div>
+      <div class="form-footer">
+        <button class="btn" id="btn-gen-root" onclick="generateRoot()">
+          <svg class="icon-16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+          </svg>
+          <span data-i18n="btn_gen_root">Generate Root CA</span>
+        </button>
+      </div>
+    </section>
 
     <!-- PANEL: INTERMEDIATE CA -->
-    <div id="panel-inter" class="panel">
-      <h3 data-i18n="inter_title">Intermediate CA Generator</h3>
-      <p class="desc" data-i18n="inter_desc">Subordinate authority for day-to-day certificate issuance. Enhances security – Root CA can remain stored offline.</p>
+    <section id="panel-inter" class="panel">
+      <div class="panel-header">
+        <div>
+          <h3 data-i18n="inter_title">Intermediate CA Generator</h3>
+          <p class="desc" data-i18n="inter_desc">Subordinate authority for day-to-day certificate issuance. Enhances security – Root CA can remain stored offline.</p>
+        </div>
+      </div>
       <div class="grid-2">
         <div class="full-width">
-          <label data-i18n="field_issuer_ca">Issuer (Existing CA)</label>
+          <label for="i-issuer" data-i18n="field_issuer_ca">Issuer (Existing CA)</label>
           <select id="i-issuer" class="ca-select"></select>
           <span class="help-text" data-i18n="inter_issuer_help">Select the parent authority that will sign this Intermediate CA.</span>
         </div>
         <div class="full-width">
-          <label data-i18n="field_cn">Common Name (CN)</label>
-          <input type="text" id="i-cn">
+          <label for="i-cn" data-i18n="field_cn">Common Name (CN)</label>
+          <input type="text" id="i-cn" placeholder="e.g. Example Issuing CA R3">
         </div>
         <div>
-          <label data-i18n="field_algo">Key Algorithm</label>
+          <label for="i-algo" data-i18n="field_algo">Key Algorithm</label>
           <select id="i-algo">
             <option value="RSA-2048" data-i18n="algo_rsa_2048">RSA 2048 (Fast, legacy standard, universal compatibility)</option>
             <option value="RSA-3072" data-i18n="algo_rsa_3072">RSA 3072 (Higher security)</option>
@@ -145,47 +363,64 @@
           </select>
         </div>
         <div>
-          <label data-i18n="field_validity_years">Validity (years)</label>
+          <label for="i-years" data-i18n="field_validity_years">Validity (years)</label>
           <input type="number" id="i-years" value="5">
         </div>
         <div class="full-width">
-          <label data-i18n="field_pathlen">Max Path Depth (PathLenConstraint)</label>
+          <label for="i-pathlen" data-i18n="field_pathlen">Max Path Depth (PathLenConstraint)</label>
           <input type="number" id="i-pathlen" value="0">
           <span class="help-text" data-i18n="inter_pathlen_help">Specifies how many subordinate CAs this authority can issue. Value "0" means it can only issue leaf certificates.</span>
         </div>
       </div>
-      <button class="btn" id="btn-gen-inter" onclick="generateInter()" data-i18n="btn_gen_inter">Create and Sign Intermediate CA</button>
-    </div>
+      <div class="form-footer">
+        <button class="btn" id="btn-gen-inter" onclick="generateInter()">
+          <svg class="icon-16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <line x1="6" x2="6" y1="3" y2="15"/>
+            <circle cx="18" cy="6" r="3"/>
+            <circle cx="6" cy="18" r="3"/>
+            <path d="M18 9a9 9 0 0 1-9 9"/>
+          </svg>
+          <span data-i18n="btn_gen_inter">Create and Sign Intermediate CA</span>
+        </button>
+      </div>
+    </section>
 
     <!-- PANEL: LEAF CERTIFICATE -->
-    <div id="panel-leaf" class="panel">
-      <h3 data-i18n="leaf_title">Leaf Certificate (End-Entity)</h3>
-      <p class="desc" data-i18n="leaf_desc">End-entity certificate for HTTPS websites, VPN servers, containers, IoT devices, or user identification.</p>
+    <section id="panel-leaf" class="panel">
+      <div class="panel-header">
+        <div>
+          <h3 data-i18n="leaf_title">Leaf Certificate (End-Entity)</h3>
+          <p class="desc" data-i18n="leaf_desc">End-entity certificate for HTTPS websites, VPN servers, containers, IoT devices, or user identification.</p>
+        </div>
+      </div>
       <div class="grid-2">
         <div class="full-width">
-          <label data-i18n="leaf_template_label">⚡ Quick Profile Template</label>
+          <label for="l-template" data-i18n="leaf_template_label">Quick Profile Template</label>
           <select id="l-template" onchange="applyLeafTemplate()">
             <option value="custom" data-i18n="tpl_custom">-- Custom Settings (Default HTTPS Web) --</option>
-            <option value="openvpn_srv" data-i18n="tpl_openvpn">🛡️ OpenVPN Server (Server Auth, RSA 2048, 825 days)</option>
-            <option value="ipsec_cli" data-i18n="tpl_ipsec">🔑 IPsec / mTLS Client (Client Auth, ECDSA P-256, 365 days)</option>
-            <option value="docker_reg" data-i18n="tpl_docker">🐳 Docker Registry (Server + Client Auth, RSA 3072, 398 days)</option>
-            <option value="mqtt_iot" data-i18n="tpl_mqtt">🏠 Smart Home MQTT Node (Server + Client, ECDSA P-256, 1095 days)</option>
-            <option value="codesign" data-i18n="tpl_codesign">📦 Code Signing (Code and package signing, RSA 4096, 365 days)</option>
+            <option value="openvpn_srv" data-i18n="tpl_openvpn">OpenVPN Server (Server Auth, RSA 2048, 825 days)</option>
+            <option value="ipsec_cli" data-i18n="tpl_ipsec">IPsec / mTLS Client (Client Auth, ECDSA P-256, 365 days)</option>
+            <option value="docker_reg" data-i18n="tpl_docker">Docker Registry (Server + Client Auth, RSA 3072, 398 days)</option>
+            <option value="mqtt_iot" data-i18n="tpl_mqtt">Smart Home MQTT Node (Server + Client, ECDSA P-256, 1095 days)</option>
+            <option value="codesign" data-i18n="tpl_codesign">Code Signing (Code and package signing, RSA 4096, 365 days)</option>
           </select>
           <span class="help-text" data-i18n="leaf_template_help">Select a template to auto-populate the values below.</span>
         </div>
-        <div class="full-width"><label data-i18n="field_issuer_short">Issuer (CA)</label><select id="l-issuer" class="ca-select"></select></div>
         <div class="full-width">
-          <label data-i18n="field_cn_leaf">Common Name (CN) / Primary Identifier</label>
+          <label for="l-issuer" data-i18n="field_issuer_short">Issuer (CA)</label>
+          <select id="l-issuer" class="ca-select"></select>
+        </div>
+        <div class="full-width">
+          <label for="l-cn" data-i18n="field_cn_leaf">Common Name (CN) / Primary Identifier</label>
           <input type="text" id="l-cn" value="www.moje-aplikace.cz">
         </div>
         <div class="full-width">
-          <label data-i18n="field_san">Subject Alt Names (SAN)</label>
-          <input type="text" id="l-san" value="moje-aplikace.cz, *.moje-aplikace.cz, 10.0.0.5">
+          <label for="l-san" data-i18n="field_san">Subject Alt Names (SAN)</label>
+          <input type="text" id="l-san" class="font-mono" value="moje-aplikace.cz, *.moje-aplikace.cz, 10.0.0.5">
           <span class="help-text" data-i18n="leaf_san_help">Comma-separated domains or IP addresses. Modern browsers require valid SAN, otherwise the certificate will be rejected.</span>
         </div>
         <div>
-          <label data-i18n="field_algo">Key Algorithm</label>
+          <label for="l-algo" data-i18n="field_algo">Key Algorithm</label>
           <select id="l-algo">
             <option value="RSA-2048" data-i18n="algo_rsa_2048">RSA 2048 (Fast, legacy standard, universal compatibility)</option>
             <option value="RSA-3072" data-i18n="algo_rsa_3072">RSA 3072 (Higher security)</option>
@@ -196,7 +431,7 @@
           </select>
         </div>
         <div>
-          <label data-i18n="field_validity_days">Validity (days)</label>
+          <label for="l-days" data-i18n="field_validity_days">Validity (days)</label>
           <input type="number" id="l-days" value="398">
           <span class="help-text" data-i18n="leaf_validity_help">The maximum validity for public HTTPS websites is currently 398 days.</span>
         </div>
@@ -211,43 +446,56 @@
           <span class="help-text" data-i18n="leaf_eku_help">Defines what purpose the operating system technically permits this certificate for. (Note: Key Usage attribute 'Key Encipherment' is only required and configured for RSA keys; for ECDSA/Ed25519 only Digital Signature applies).</span>
         </div>
       </div>
-      <button class="btn" id="btn-gen-leaf" onclick="generateLeaf()" data-i18n="btn_gen_leaf">Issue Leaf Certificate</button>
-    </div>
+      <div class="form-footer">
+        <button class="btn" id="btn-gen-leaf" onclick="generateLeaf()">
+          <svg class="icon-16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"/>
+            <path d="M14 2v4a2 2 0 0 0 2 2h4"/>
+            <path d="m9 15 2 2 4-4"/>
+          </svg>
+          <span data-i18n="btn_gen_leaf">Issue Leaf Certificate</span>
+        </button>
+      </div>
+    </section>
 
     <!-- PANEL: CSR GENERATOR -->
-    <div id="panel-csr-gen" class="panel">
-      <h3 data-i18n="csr_gen_title">Certificate Signing Request (CSR) Generator</h3>
-      <p class="desc" data-i18n="csr_gen_desc">Generate a new private key and corresponding signing request (PKCS#10 CSR) for an external CA or to test in the Sign CSR section.</p>
-      
+    <section id="panel-csr-gen" class="panel">
+      <div class="panel-header">
+        <div>
+          <h3 data-i18n="csr_gen_title">Certificate Signing Request (CSR) Generator</h3>
+          <p class="desc" data-i18n="csr_gen_desc">Generate a new private key and corresponding signing request (PKCS#10 CSR) for an external CA or to test in the Sign CSR section.</p>
+        </div>
+      </div>
+
       <div class="grid-2">
         <div class="full-width">
-          <label data-i18n="field_cn_csr_gen">Common Name (CN) / Main Domain</label>
+          <label for="cg-cn" data-i18n="field_cn_csr_gen">Common Name (CN) / Main Domain</label>
           <input type="text" id="cg-cn" value="api.moje-domena.cz">
           <span class="help-text" data-i18n="csr_gen_cn_help">Fully qualified domain name (FQDN) of the server or subject name.</span>
         </div>
         <div class="full-width">
-          <label data-i18n="field_san">Subject Alt Names (SAN)</label>
-          <input type="text" id="cg-san" value="api.moje-domena.cz, *.api.moje-domena.cz, 192.168.1.50">
+          <label for="cg-san" data-i18n="field_san">Subject Alt Names (SAN)</label>
+          <input type="text" id="cg-san" class="font-mono" value="api.moje-domena.cz, *.api.moje-domena.cz, 192.168.1.50">
           <span class="help-text" data-i18n="csr_gen_san_help">All domains and IP addresses (comma-separated) for which the certificate should be valid.</span>
         </div>
         <div>
-          <label data-i18n="field_org">Organization (O)</label>
+          <label for="cg-o" data-i18n="field_org">Organization (O)</label>
           <input type="text" id="cg-o" placeholder="Optional" data-i18n-placeholder="placeholder_optional">
         </div>
         <div>
-          <label data-i18n="field_ou">Organizational Unit (OU)</label>
+          <label for="cg-ou" data-i18n="field_ou">Organizational Unit (OU)</label>
           <input type="text" id="cg-ou" placeholder="not used" data-i18n-placeholder="placeholder_not_used">
         </div>
         <div>
-          <label data-i18n="field_country">Country (C)</label>
+          <label for="cg-c" data-i18n="field_country">Country (C)</label>
           <input type="text" id="cg-c" maxlength="2" placeholder="Two-letter ISO code" data-i18n-placeholder="placeholder_country">
         </div>
         <div>
-          <label data-i18n="field_city">City / Region (L)</label>
+          <label for="cg-l" data-i18n="field_city">City / Region (L)</label>
           <input type="text" id="cg-l" placeholder="Optional" data-i18n-placeholder="placeholder_optional">
         </div>
         <div class="full-width">
-          <label data-i18n="field_algo">Key Algorithm</label>
+          <label for="cg-algo" data-i18n="field_algo">Key Algorithm</label>
           <select id="cg-algo">
             <option value="RSA-2048" data-i18n="algo_rsa_2048">RSA 2048 (Fast, legacy standard, universal compatibility)</option>
             <option value="RSA-3072" data-i18n="algo_rsa_3072">RSA 3072 (Higher security)</option>
@@ -260,67 +508,134 @@
         </div>
       </div>
 
-      <button class="btn" id="btn-gen-csr" onclick="generateCsr()" data-i18n="btn_gen_csr">🛠️ Generate Key and CSR Request</button>
+      <div class="form-footer">
+        <button class="btn" id="btn-gen-csr" onclick="generateCsr()">
+          <svg class="icon-16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+            <polyline points="14 2 14 8 20 8"/>
+            <line x1="12" x2="12" y1="18" y2="12"/>
+            <line x1="9" x2="15" y1="15" y2="15"/>
+          </svg>
+          <span data-i18n="btn_gen_csr">Generate Key and CSR Request</span>
+        </button>
+      </div>
 
-      <!-- Výstupní box pro vygenerované CSR a Klíč -->
-      <div id="cg-output-box" style="display:none; margin-top: 30px; border-top: 1px solid var(--border); padding-top: 25px;">
+      <!-- Output box for generated CSR & Key -->
+      <div id="cg-output-box" class="sub-panel" style="display:none;">
         <h4 data-i18n="cg_out_heading">Output: Generated Files</h4>
         <p class="desc" style="margin-bottom: 16px;" data-i18n="cg_out_desc">Store private key (<code>.key</code>) securely on your server. Submit request file (<code>.csr</code>) to certificate authority for signing.</p>
-        
-        <div style="margin-bottom: 18px; display: flex; gap: 10px; flex-wrap: wrap;">
-          <button class="btn-sm special" onclick="sendGeneratedCsrToSign()" data-i18n="btn_send_csr_sign">➡️ Transfer directly to Sign CSR section</button>
-          <button class="btn-sm" onclick="sendGeneratedCsrToDecoder()" data-i18n="btn_send_csr_dec">🔍 Inspect in Decoder</button>
+
+        <div class="action-bar-inline">
+          <button class="btn-sm special" onclick="sendGeneratedCsrToSign()">
+            <svg class="icon-14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path d="M5 12h14"/>
+              <path d="m12 5 7 7-7 7"/>
+            </svg>
+            <span data-i18n="btn_send_csr_sign">Transfer directly to Sign CSR section</span>
+          </button>
+          <button class="btn-sm" onclick="sendGeneratedCsrToDecoder()">
+            <svg class="icon-14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <circle cx="11" cy="11" r="8"/>
+              <path d="m21 21-4.3-4.3"/>
+            </svg>
+            <span data-i18n="btn_send_csr_dec">Inspect in Decoder</span>
+          </button>
         </div>
 
-        <div class="grid-2">
+        <div class="grid-2" style="margin-bottom: 0;">
           <div>
-            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
-              <label style="margin:0;" data-i18n="label_out_csr">📄 Signing Request (.CSR)</label>
-              <div style="display:flex; gap:6px;">
-                <button class="btn-sm" onclick="copyTextById('cg-out-csr', t('toast_csr_copied'))" data-i18n="btn_copy">📋 Copy</button>
-                <button class="btn-sm special" onclick="downloadGeneratedCsr('csr')" data-i18n="btn_dl_csr">💾 Download .CSR</button>
+            <div class="field-toolbar">
+              <label style="margin:0;" data-i18n="label_out_csr">Signing Request (.CSR)</label>
+              <div class="field-toolbar-actions">
+                <button class="btn-sm" onclick="copyTextById('cg-out-csr', t('toast_csr_copied'))">
+                  <svg class="icon-14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                    <rect width="14" height="14" x="8" y="8" rx="2" ry="2"/>
+                    <path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/>
+                  </svg>
+                  <span data-i18n="btn_copy">Copy</span>
+                </button>
+                <button class="btn-sm special" onclick="downloadGeneratedCsr('csr')">
+                  <svg class="icon-14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                    <polyline points="7 10 12 15 17 10"/>
+                    <line x1="12" x2="12" y1="15" y2="3"/>
+                  </svg>
+                  <span data-i18n="btn_dl_csr">Download .CSR</span>
+                </button>
               </div>
             </div>
-            <textarea id="cg-out-csr" readonly style="min-height: 220px; font-size: 12px; color: #93c5fd;"></textarea>
+            <textarea id="cg-out-csr" readonly class="code-textarea text-accent-soft"></textarea>
           </div>
           <div>
-            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
-              <label style="margin:0; color: var(--danger);" data-i18n="label_out_key">🔑 Server Private Key (.KEY)</label>
-              <div style="display:flex; gap:6px;">
-                <button class="btn-sm" onclick="copyTextById('cg-out-key', t('toast_key_copied'))" data-i18n="btn_copy">📋 Copy</button>
-                <button class="btn-sm warn" onclick="downloadGeneratedCsr('key')" data-i18n="btn_dl_key">💾 Download .KEY</button>
+            <div class="field-toolbar">
+              <label style="margin:0; color: var(--danger);" data-i18n="label_out_key">Server Private Key (.KEY)</label>
+              <div class="field-toolbar-actions">
+                <button class="btn-sm" onclick="copyTextById('cg-out-key', t('toast_key_copied'))">
+                  <svg class="icon-14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                    <rect width="14" height="14" x="8" y="8" rx="2" ry="2"/>
+                    <path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/>
+                  </svg>
+                  <span data-i18n="btn_copy">Copy</span>
+                </button>
+                <button class="btn-sm warn" onclick="downloadGeneratedCsr('key')">
+                  <svg class="icon-14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                    <polyline points="7 10 12 15 17 10"/>
+                    <line x1="12" x2="12" y1="15" y2="3"/>
+                  </svg>
+                  <span data-i18n="btn_dl_key">Download .KEY</span>
+                </button>
               </div>
             </div>
-            <textarea id="cg-out-key" readonly style="min-height: 220px; font-size: 12px; color: #fca5a5;"></textarea>
+            <textarea id="cg-out-key" readonly class="code-textarea text-danger-soft"></textarea>
           </div>
         </div>
       </div>
-    </div>
+    </section>
 
     <!-- PANEL: CSR SIGNING -->
-    <div id="panel-csr" class="panel">
-      <h3 data-i18n="csr_sign_title">Certificate Signing Request (CSR) Signing</h3>
-      <p class="desc" data-i18n="csr_sign_desc">Sign a certificate for a device when you do not (or must not) possess the private key. The device only provides a <code>.csr</code> file.</p>
-      
+    <section id="panel-csr" class="panel">
+      <div class="panel-header">
+        <div>
+          <h3 data-i18n="csr_sign_title">Certificate Signing Request (CSR) Signing</h3>
+          <p class="desc" data-i18n="csr_sign_desc">Sign a certificate for a device when you do not (or must not) possess the private key. The device only provides a <code>.csr</code> file.</p>
+        </div>
+      </div>
+
       <div class="drop-zone" onclick="document.getElementById('file-csr').click()" ondragover="handleDragOver(event, this)" ondragleave="handleDragLeave(this)" ondrop="handleDrop(event, this, 'csr-pem', parseCsrInput)">
-        <span style="font-size: 24px;">📄</span>
-        <strong data-i18n="drop_csr">Drag & drop .csr or .pem file here</strong>
-        <span style="font-size: 13px;" data-i18n="drop_or_browse">or click to browse from disk</span>
+        <div class="drop-zone-icon">
+          <svg class="icon-20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+            <polyline points="17 8 12 3 7 8"/>
+            <line x1="12" x2="12" y1="3" y2="15"/>
+          </svg>
+        </div>
+        <strong data-i18n="drop_csr">Drag &amp; drop .csr or .pem file here</strong>
+        <span class="drop-zone-sub" data-i18n="drop_or_browse">or click to browse from disk</span>
         <input type="file" id="file-csr" accept=".csr,.pem,.txt" onchange="handleFileSelect(event, 'csr-pem', parseCsrInput)">
       </div>
 
-      <label data-i18n="label_csr_pem">CSR Request Content (PEM format)</label>
-      <textarea id="csr-pem" placeholder="-----BEGIN CERTIFICATE REQUEST-----&#10;...&#10;-----END CERTIFICATE REQUEST-----" oninput="parseCsrInput()"></textarea>
+      <label for="csr-pem" data-i18n="label_csr_pem">CSR Request Content (PEM format)</label>
+      <textarea id="csr-pem" class="code-textarea" placeholder="-----BEGIN CERTIFICATE REQUEST-----&#10;...&#10;-----END CERTIFICATE REQUEST-----" oninput="parseCsrInput()"></textarea>
 
-      <div id="csr-review-box" style="display:none; margin-top: 25px; border-top: 1px solid var(--border); padding-top: 25px;">
+      <div id="csr-review-box" class="sub-panel" style="display:none;">
         <h4 data-i18n="csr_review_title">Attribute Review Before Signing</h4>
         <div class="grid-2">
-          <div class="full-width"><label data-i18n="field_sign_by_ca">Sign with Authority (CA)</label><select id="csr-issuer" class="ca-select"></select></div>
-          <div><label data-i18n="field_cn_from_csr">Common Name (CN) from CSR</label><input type="text" id="csr-cn"></div>
-          <div><label data-i18n="field_new_validity_days">New Validity (days)</label><input type="number" id="csr-days" value="398"></div>
           <div class="full-width">
-            <label data-i18n="field_san">Subject Alt Names (SAN)</label>
-            <input type="text" id="csr-san" placeholder="Comma-separated domains or IP addresses" data-i18n-placeholder="placeholder_csr_san">
+            <label for="csr-issuer" data-i18n="field_sign_by_ca">Sign with Authority (CA)</label>
+            <select id="csr-issuer" class="ca-select"></select>
+          </div>
+          <div>
+            <label for="csr-cn" data-i18n="field_cn_from_csr">Common Name (CN) from CSR</label>
+            <input type="text" id="csr-cn">
+          </div>
+          <div>
+            <label for="csr-days" data-i18n="field_new_validity_days">New Validity (days)</label>
+            <input type="number" id="csr-days" value="398">
+          </div>
+          <div class="full-width">
+            <label for="csr-san" data-i18n="field_san">Subject Alt Names (SAN)</label>
+            <input type="text" id="csr-san" class="font-mono" placeholder="Comma-separated domains or IP addresses" data-i18n-placeholder="placeholder_csr_san">
             <span class="help-text" data-i18n="csr_san_help">Extracted from request. You can add or remove domains that will actually be permitted for the certificate.</span>
           </div>
           <div class="full-width">
@@ -333,89 +648,177 @@
             </div>
           </div>
         </div>
-        <button class="btn" onclick="signCsrRequest()" data-i18n="btn_sign_csr">✍️ Process CSR and Issue Certificate</button>
+        <div class="form-footer">
+          <button class="btn" onclick="signCsrRequest()">
+            <svg class="icon-16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path d="M12 20h9"/>
+              <path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z"/>
+            </svg>
+            <span data-i18n="btn_sign_csr">Process CSR and Issue Certificate</span>
+          </button>
+        </div>
       </div>
-    </div>
+    </section>
 
     <!-- PANEL: CROSS-SIGNING -->
-    <div id="panel-cross" class="panel">
-      <h3 data-i18n="cross_title">Cross-Signing</h3>
-      <p class="desc" data-i18n="cross_desc">Cross-signing preserves the original authority key while establishing trust through another existing (e.g. older) Root CA. Frequently used for smooth migration to new keys without breaking trust on legacy devices.</p>
+    <section id="panel-cross" class="panel">
+      <div class="panel-header">
+        <div>
+          <h3 data-i18n="cross_title">Cross-Signing</h3>
+          <p class="desc" data-i18n="cross_desc">Cross-signing preserves the original authority key while establishing trust through another existing (e.g. older) Root CA. Frequently used for smooth migration to new keys without breaking trust on legacy devices.</p>
+        </div>
+      </div>
       <div class="grid-2">
         <div>
-          <label data-i18n="field_target_ca">Target CA (Identity to preserve)</label>
+          <label for="c-target" data-i18n="field_target_ca">Target CA (Identity to preserve)</label>
           <select id="c-target" class="ca-select"></select>
         </div>
         <div>
-          <label data-i18n="field_new_issuer">New Issuer (Signer)</label>
+          <label for="c-issuer" data-i18n="field_new_issuer">New Issuer (Signer)</label>
           <select id="c-issuer" class="ca-select"></select>
         </div>
         <div class="full-width">
-          <label data-i18n="field_new_validity_years">New Validity (years)</label>
+          <label for="c-years" data-i18n="field_new_validity_years">New Validity (years)</label>
           <input type="number" id="c-years" value="3">
         </div>
       </div>
-      <button class="btn" id="btn-gen-cross" onclick="crossSign()" data-i18n="btn_gen_cross">Create Cross-Signature</button>
-    </div>
+      <div class="form-footer">
+        <button class="btn" id="btn-gen-cross" onclick="crossSign()">
+          <svg class="icon-16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M16 3h5v5"/>
+            <path d="M8 3H3v5"/>
+            <path d="M12 22v-8.3a4 4 0 0 0-1.172-2.872L3 3"/>
+            <path d="m15 9 6-6"/>
+          </svg>
+          <span data-i18n="btn_gen_cross">Create Cross-Signature</span>
+        </button>
+      </div>
+    </section>
 
     <!-- PANEL: DECODER -->
-    <div id="panel-decoder" class="panel">
-      <h3 data-i18n="decoder_title">Certificate & CSR Inspector</h3>
-      <p class="desc" data-i18n="decoder_desc">Quick inspection of any certificate or request. All decoding happens strictly locally in your browser; no data is transmitted.</p>
-      
+    <section id="panel-decoder" class="panel">
+      <div class="panel-header">
+        <div>
+          <h3 data-i18n="decoder_title">Certificate &amp; CSR Inspector</h3>
+          <p class="desc" data-i18n="decoder_desc">Quick inspection of any certificate or request. All decoding happens strictly locally in your browser; no data is transmitted.</p>
+        </div>
+      </div>
+
       <div class="drop-zone" onclick="document.getElementById('file-dec').click()" ondragover="handleDragOver(event, this)" ondragleave="handleDragLeave(this)" ondrop="handleDrop(event, this, 'dec-pem', decodePem)">
-        <span style="font-size: 24px;">🔍</span>
-        <strong data-i18n="drop_decoder">Drag & drop .crt, .pem, or .csr file here</strong>
-        <span style="font-size: 13px;" data-i18n="drop_decoder_click">or click to browse</span>
+        <div class="drop-zone-icon">
+          <svg class="icon-20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <circle cx="11" cy="11" r="8"/>
+            <path d="m21 21-4.3-4.3"/>
+          </svg>
+        </div>
+        <strong data-i18n="drop_decoder">Drag &amp; drop .crt, .pem, or .csr file here</strong>
+        <span class="drop-zone-sub" data-i18n="drop_decoder_click">or click to browse</span>
         <input type="file" id="file-dec" accept=".crt,.pem,.csr,.cer,.txt" onchange="handleFileSelect(event, 'dec-pem', decodePem)">
       </div>
 
-      <label data-i18n="label_dec_pem">PEM Certificate or CSR to Decode</label>
-      <textarea id="dec-pem" placeholder="-----BEGIN CERTIFICATE-----&#10;...&#10;-----END CERTIFICATE-----"></textarea>
-      <button class="btn" onclick="decodePem()" style="margin-top:16px;" data-i18n="btn_decode">🔍 Decode and Inspect Content</button>
-      
+      <label for="dec-pem" data-i18n="label_dec_pem">PEM Certificate or CSR to Decode</label>
+      <textarea id="dec-pem" class="code-textarea" placeholder="-----BEGIN CERTIFICATE-----&#10;...&#10;-----END CERTIFICATE-----"></textarea>
+      <div class="form-footer" style="margin-top: 16px;">
+        <button class="btn" onclick="decodePem()">
+          <svg class="icon-16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <circle cx="11" cy="11" r="8"/>
+            <path d="m21 21-4.3-4.3"/>
+          </svg>
+          <span data-i18n="btn_decode">Decode and Inspect Content</span>
+        </button>
+      </div>
+
       <div id="dec-result" class="decode-result"></div>
       <div id="dec-syntax" class="pem-viewer" style="display:none;"></div>
-    </div>
+    </section>
 
     <!-- PANEL: IMPORT & WORKSPACE BACKUP -->
-    <div id="panel-import" class="panel">
-      <h3 data-i18n="import_title">PEM Import & Encrypted Keyring Backup</h3>
-      <p class="desc" data-i18n="import_desc">Add existing certificates (e.g. Let's Encrypt or corporate CA) to the application, or back up the current project state.</p>
-      
-      <h4 data-i18n="import_h4_1">1. Import External PEM Certificate and Key</h4>
+    <section id="panel-import" class="panel">
+      <div class="panel-header">
+        <div>
+          <h3 data-i18n="import_title">PEM Import &amp; Encrypted Keyring Backup</h3>
+          <p class="desc" data-i18n="import_desc">Add existing certificates (e.g. Let's Encrypt or corporate CA) to the application, or back up the current project state.</p>
+        </div>
+      </div>
+
+      <h4 style="margin-top: 0;" data-i18n="import_h4_1">1. Import External PEM Certificate and Key</h4>
       <div class="drop-zone" onclick="document.getElementById('file-imp').click()" ondragover="handleDragOver(event, this)" ondragleave="handleDragLeave(this)" ondrop="handleDrop(event, this, 'imp-pem')">
-        <span style="font-size: 24px;">📥</span>
-        <strong data-i18n="drop_imp">Drag & drop .pem, .crt, or .key file here</strong>
-        <span style="font-size: 13px;" data-i18n="drop_imp_hint">(combined certificate and private key can also be dropped)</span>
+        <div class="drop-zone-icon">
+          <svg class="icon-20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+            <polyline points="7 10 12 15 17 10"/>
+            <line x1="12" x2="12" y1="15" y2="3"/>
+          </svg>
+        </div>
+        <strong data-i18n="drop_imp">Drag &amp; drop .pem, .crt, or .key file here</strong>
+        <span class="drop-zone-sub" data-i18n="drop_imp_hint">(combined certificate and private key can also be dropped)</span>
         <input type="file" id="file-imp" accept=".pem,.crt,.key,.txt" onchange="handleFileSelect(event, 'imp-pem')">
       </div>
-      <label data-i18n="label_imp_content">File Content (PEM block)</label>
-      <textarea id="imp-pem" placeholder="-----BEGIN CERTIFICATE-----&#10;...&#10;-----END CERTIFICATE-----&#10;-----BEGIN PRIVATE KEY-----&#10;...&#10;-----END PRIVATE KEY-----"></textarea>
-      <button class="btn" style="margin-top: 16px;" onclick="importExternalPem()" data-i18n="btn_imp_cert">Import Certificate to Keyring</button>
+      <label for="imp-pem" data-i18n="label_imp_content">File Content (PEM block)</label>
+      <textarea id="imp-pem" class="code-textarea" placeholder="-----BEGIN CERTIFICATE-----&#10;...&#10;-----END CERTIFICATE-----&#10;-----BEGIN PRIVATE KEY-----&#10;...&#10;-----END PRIVATE KEY-----"></textarea>
+      <div class="form-footer" style="margin-top: 16px;">
+        <button class="btn" onclick="importExternalPem()">
+          <svg class="icon-16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+            <polyline points="7 10 12 15 17 10"/>
+            <line x1="12" x2="12" y1="15" y2="3"/>
+          </svg>
+          <span data-i18n="btn_imp_cert">Import Certificate to Keyring</span>
+        </button>
+      </div>
 
-      <div style="border-top: 1px solid var(--border); margin: 35px 0 25px 0;"></div>
+      <div class="section-divider"></div>
 
       <h4 data-i18n="import_h4_2">2. Encrypted Workspace Backup</h4>
       <p class="desc" data-i18n="import_backup_desc">Download complete keyring tree into a single password-protected <code>.json</code> file (encrypted locally using AES-256-GCM). Can subsequently be opened on any other device. <b>Importing from a backup will replace all currently saved data!</b></p>
-      <div class="grid-2">
-        <button class="btn btn-secondary" onclick="exportEncryptedWorkspace()" data-i18n="btn_export_ws">🔒 Export Backup</button>
-        <button class="btn btn-secondary" onclick="document.getElementById('file-ws').click()" data-i18n="btn_restore_ws">🔓 Restore Backup</button>
+      <div class="backup-actions">
+        <button class="btn btn-secondary" onclick="exportEncryptedWorkspace()">
+          <svg class="icon-16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <rect width="18" height="11" x="3" y="11" rx="2" ry="2"/>
+            <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+          </svg>
+          <span data-i18n="btn_export_ws">Export Backup</span>
+        </button>
+        <button class="btn btn-secondary" onclick="document.getElementById('file-ws').click()">
+          <svg class="icon-16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <rect width="18" height="11" x="3" y="11" rx="2" ry="2"/>
+            <path d="M7 11V7a5 5 0 0 1 9.9-1"/>
+          </svg>
+          <span data-i18n="btn_restore_ws">Restore Backup</span>
+        </button>
         <input type="file" id="file-ws" accept=".json" style="display:none" onchange="importEncryptedWorkspace(event)">
       </div>
-    </div>
+    </section>
 
-  </div>
+  </main>
 </div>
 
-<!-- MODAL PRO SYNTAX HIGHLIGHTING PEM -->
+<!-- MODAL FOR SYNTAX HIGHLIGHTING PEM -->
 <div class="modal-backdrop" id="pem-modal" onclick="if(event.target===this) closePemModal()">
-  <div class="modal-content">
+  <div class="modal-content" role="dialog" aria-modal="true" aria-labelledby="pem-modal-title">
     <div class="modal-header">
-      <strong id="pem-modal-title" data-i18n="modal_preview_title">PEM Preview</strong>
-      <div style="display:flex; gap:10px;">
-        <button class="btn-sm special" onclick="copyModalPem()" data-i18n="modal_btn_copy">📋 Copy Code</button>
-        <button class="btn-sm" onclick="closePemModal()" data-i18n="modal_btn_close">✕ Close</button>
+      <div class="modal-title-group">
+        <svg class="icon-16 text-accent" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <polyline points="16 18 22 12 16 6"/>
+          <polyline points="8 6 2 12 8 18"/>
+        </svg>
+        <strong id="pem-modal-title" data-i18n="modal_preview_title">PEM Preview</strong>
+      </div>
+      <div class="modal-actions">
+        <button class="btn-sm special" onclick="copyModalPem()">
+          <svg class="icon-14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <rect width="14" height="14" x="8" y="8" rx="2" ry="2"/>
+            <path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/>
+          </svg>
+          <span data-i18n="modal_btn_copy">Copy Code</span>
+        </button>
+        <button class="btn-sm" onclick="closePemModal()">
+          <svg class="icon-14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M18 6 6 18"/>
+            <path d="m6 6 12 12"/>
+          </svg>
+          <span data-i18n="modal_btn_close">Close</span>
+        </button>
       </div>
     </div>
     <div class="modal-body">
@@ -425,7 +828,7 @@
 </div>
 
 <!-- TOAST CONTAINER -->
-<div id="toast-container"></div>
+<div id="toast-container" aria-live="polite"></div>
 
 <script src="js/forge-patches.js"></script>
 <script src="js/i18n.js"></script>
