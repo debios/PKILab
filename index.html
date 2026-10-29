@@ -79,9 +79,10 @@
         </div>
         <h2>PKI Lab <span id="app-version-badge">v2.4</span></h2>
       </div>
-      <button class="lang-switch-btn" id="lang-btn" onclick="toggleLanguage()" title="Přepnout jazyk / Switch language" aria-label="Switch language">
-        <span id="lang-opt-cs" class="lang-opt active">CZ</span><span class="lang-sep">/</span><span id="lang-opt-en" class="lang-opt">EN</span>
-      </button>
+      <select class="lang-select" id="lang-select" onchange="changeLanguage(event)" title="Switch language" aria-label="Switch language">
+        <option value="cs">CZ</option>
+        <option value="en">EN</option>
+      </select>
     </div>
 
     <div class="nav-section">
@@ -179,6 +180,9 @@
         </svg>
         <span data-i18n="nav_import">Import / Backup</span>
       </button>
+    </div>
+    <div class="nav-lang" id="nav-lang">
+        <div class="nav-lang-experimental" data-i18n="nav_lang_experimental"></div>
     </div>
   </aside>
 
