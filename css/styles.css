@@ -293,7 +293,7 @@ p.desc {
   color: var(--muted);
   font-size: 13px;
   line-height: 1.55;
-  max-width: 72ch;
+  padding-top: 12px;
 }
 
 p.desc code,
